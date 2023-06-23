@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       )}`,
     });
   }
-  const { access_token, scope, expires_in, refresh_token } =
+  const { access_token, expires_in, refresh_token } =
     await tokenResponse.json();
   cookies().delete("SPOTIFY_LOGIN_ANTIFORGERY_TOKEN");
   cookies().set({

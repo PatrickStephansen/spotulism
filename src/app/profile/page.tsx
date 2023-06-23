@@ -1,13 +1,7 @@
-import { cookies } from "next/headers";
+import { fetchFromSpotify } from "../lib/fetch-from-spotify";
 
 export default async function Profile() {
-  const profileResponse = await fetch(`${process.env.SPOTIFY_API_URL}/v1/me`, {
-    headers: {
-      Authorization: `Bearer ${cookies().get("SPOTIFY_ACCESS_TOKEN")?.value}`,
-    },
-  });
-
-  const profileResponseBody = await profileResponse.json();
+  const profileResponse = await fetchFromSpotify('/v1/me');
 
   return (
     <div>
@@ -15,7 +9,7 @@ export default async function Profile() {
       <pre>
         profile retrieved:
 
-        {JSON.stringify(profileResponseBody, null, 2)}
+        {JSON.stringify(await profileResponse.json(), null, 2)}
       </pre>
     </div>
   );
