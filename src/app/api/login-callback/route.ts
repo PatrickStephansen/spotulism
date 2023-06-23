@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
   form.set(
     "redirect_uri",
     process.env.LOGIN_CALLBACK_URL ??
-    "No callback URL configured. LOGIN_CALLBACK_URL is missing."
-    );
+      "No callback URL configured. LOGIN_CALLBACK_URL is missing."
+  );
   // get the token we need to make further API calls
   const tokenResponse = await fetch(
     `${process.env.SPOTIFY_AUTH_SERVICE_URL}/api/token`,
@@ -32,11 +32,17 @@ export async function GET(request: NextRequest) {
           `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
         ).toString("base64")}`,
       },
-      body: form,
+      body: `grant_type=authorization_code&redirect_uri=${
+        process.env.LOGIN_CALLBACK_URL ?? ""
+      }&code=${code}`,
     }
   );
   if (!tokenResponse.ok) {
-    throw new Error("invalid auth token", { cause: `${tokenResponse.statusText}: ${JSON.stringify(await tokenResponse.json())}` });
+    throw new Error("invalid auth token", {
+      cause: `${tokenResponse.statusText}: ${JSON.stringify(
+        await tokenResponse.json()
+      )}`,
+    });
   }
   const { access_token, scope, expires_in, refresh_token } =
     await tokenResponse.json();
@@ -50,7 +56,7 @@ export async function GET(request: NextRequest) {
     name: "SPOTIFY_ACCESS_TOKEN",
     value: access_token,
     httpOnly: true,
-    expires: expires_in,
+    expires: new Date(Date.now() + expires_in * 1000),
   });
   redirect("/profile");
 }
