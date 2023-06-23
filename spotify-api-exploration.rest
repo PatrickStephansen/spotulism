@@ -1,9 +1,19 @@
 @baseUrl=https://api.spotify.com
+@authUrl=https://accounts.spotify.com
 @clientId=c4c4f6600a6e49db9d6805d7245eedac
 
 ###
-GET {{baseUrl}}/authorize
+GET {{authUrl}}/authorize
     ?client_id={{clientId}}
     &response_type=code
     &redirect_uri=http://localhost:3000
     &scope=streaming user-top-read user-read-playback-position user-follow-read user-follow-modify playlist-modify-public
+
+###
+POST {{authUrl}}/api/token
+Content-Type: application/x-www-form-urlencoded
+Authorization: Basic 
+
+grant_type=authorization_code
+&code=
+&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Flogin-callback
