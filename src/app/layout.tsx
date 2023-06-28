@@ -1,6 +1,6 @@
 import './globals.css'
 import { Inter } from 'next/font/google'
-import { TokenRefresher } from "./components/token-refresher";
+import { TokenRefresher } from "./_components/token-refresher";
 
 const inter = Inter({ subsets: ['latin'] })
 
