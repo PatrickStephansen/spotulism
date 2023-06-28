@@ -35,7 +35,7 @@ export const UserBar = ({ children }: PropsWithChildren) => {
           />
         </Link>
       ) : (
-        <Link href="/api/login">Login</Link>
+        <Link href="/api/login" prefetch={false}>Login</Link>
       )}
     </div>
   );
