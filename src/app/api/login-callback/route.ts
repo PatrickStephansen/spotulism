@@ -58,5 +58,5 @@ export async function GET(request: NextRequest) {
     httpOnly: true,
     expires: new Date(Date.now() + expires_in * 1000),
   });
-  redirect("/profile");
+  redirect("/");
 }

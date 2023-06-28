@@ -15,7 +15,6 @@ export default async function Profile() {
   return (
     <div>
       Hey, you made it. Here's what I know about your profile:
-      <LoginState serverSaysYes={profileResponse.ok} />
       <pre>
         profile retrieved:
         {JSON.stringify(profile, null, 2)}

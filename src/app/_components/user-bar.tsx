@@ -11,7 +11,7 @@ export const UserBar = ({ children }: PropsWithChildren) => {
   const userIsLoggedIn = useAtomValue(userHasLoggedIn);
 
   useEffect(() => {
-    if (userHasLoggedIn && !user) {
+    if (userIsLoggedIn && !user) {
       // todo: validation of user object
       // todo: find out why this fetches twice. could just be double render debug nonsense
       fetch("/api/user-profile")
