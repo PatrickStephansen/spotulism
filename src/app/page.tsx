@@ -1,7 +1,7 @@
-import Link from 'next/link'
+import { LoginButton } from './_components/login-button'
 
 export default function Home() {
   return (
-    <Link href="/api/login" prefetch={false}>Log in with Spotify</Link>
+    <h1 className="text-xl">Spotulism</h1>
   )
 }

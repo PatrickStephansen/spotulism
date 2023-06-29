@@ -1,68 +1,30 @@
 import { getSpotifySdk } from "@/app/_lib/spotify-sdk";
+import { UserProfile } from "@/app/_types/user-profile";
 import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest) {
-  const error = request.nextUrl.searchParams.get("error");
-  const code = request.nextUrl.searchParams.get("code");
-  const state = request.nextUrl.searchParams.get("state");
-  if (error) {
-    throw new Error("Error logging in", { cause: error });
-  }
-  if (cookies().get("SPOTIFY_LOGIN_ANTIFORGERY_TOKEN")?.value !== state) {
-    throw new Error("Antiforgery missmatch");
-  }
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const sdk = getSpotifySdk(body);
+    const profile = await sdk.currentUser.profile();
+    const primaryProfileImage = profile.images?.[0];
+    const userProfile: UserProfile = {
+      displayName: profile.display_name,
+      imageUrl: primaryProfileImage.url,
+      spotifyId: profile.id,
+      spotifyWebUrl: profile.external_urls.spotify,
+      spotifyApiUrl: profile.href,
+    };
 
-  const form = new FormData();
-  form.set("code", code ?? "missing code - this should never happen");
-  form.set("grant_type", "authorization_code");
-  form.set(
-    "redirect_uri",
-    process.env.LOGIN_CALLBACK_URL ??
-      "No callback URL configured. LOGIN_CALLBACK_URL is missing."
-  );
-  // get the token we need to make further API calls
-  const tokenResponse = await fetch(
-    `${process.env.SPOTIFY_AUTH_SERVICE_URL}/api/token`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        Authorization: `Basic ${Buffer.from(
-          `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-        ).toString("base64")}`,
-      },
-      body: `grant_type=authorization_code&redirect_uri=${
-        process.env.LOGIN_CALLBACK_URL ?? ""
-      }&code=${code}`,
-    }
-  );
-  if (!tokenResponse.ok) {
-    throw new Error("invalid auth token", {
-      cause: `${tokenResponse.statusText}: ${JSON.stringify(
-        await tokenResponse.json()
-      )}`,
+    cookies().set({
+      name: "SPOTIFY_USER_TOKEN",
+      value: JSON.stringify(body),
+      httpOnly: false,
+      sameSite: "strict",
     });
+    return NextResponse.json(userProfile);
+  } catch (error) {
+    console.error("error logging in", error);
   }
-  const token=  await tokenResponse.json();
-  const { access_token, expires_in, refresh_token } =token;
-  cookies().delete("SPOTIFY_LOGIN_ANTIFORGERY_TOKEN");
-  cookies().set({
-    name: "SPOTIFY_REFRESH_TOKEN",
-    value: refresh_token,
-    httpOnly: true,
-  });
-  cookies().set({
-    name: "SPOTIFY_ACCESS_TOKEN",
-    value: access_token,
-    httpOnly: true,
-    expires: new Date(Date.now() + expires_in * 1000),
-  });
-  cookies().set({
-    name: "SPOTIFY_USER_TOKEN",
-    value: JSON.stringify(token),
-    httpOnly: true
-  })
-  redirect("/");
 }

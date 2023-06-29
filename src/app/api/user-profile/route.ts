@@ -4,8 +4,10 @@ import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 
 export async function GET() {
-  const userAccessToken = JSON.parse(cookies().get("SPOTIFY_USER_TOKEN")?.value ?? "null");
-  if (!userAccessToken?.expires_in) {
+  const userAccessToken = JSON.parse(
+    cookies().get("SPOTIFY_USER_TOKEN")?.value ?? "null"
+  );
+  if (!userAccessToken) {
     return new NextResponse(null, { status: 401 });
   }
   const spotifyApi = getSpotifySdk(userAccessToken);
@@ -20,7 +22,7 @@ export async function GET() {
       spotifyApiUrl: profile.href,
     };
 
-    return new NextResponse(JSON.stringify(userProfile));
+    return NextResponse.json(userProfile);
   } catch (e: any) {
     return new NextResponse(e.message, { status: 500 });
   }

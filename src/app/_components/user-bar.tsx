@@ -5,6 +5,7 @@ import Link from "next/link";
 import { PropsWithChildren, useEffect } from "react";
 import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import { userProfile } from "../_state/user-profile";
+import { LoginButton } from "./login-button";
 
 export const UserBar = ({ children }: PropsWithChildren) => {
   const [user, setUser] = useAtom(userProfile);
@@ -22,21 +23,26 @@ export const UserBar = ({ children }: PropsWithChildren) => {
 
   return (
     <div className="sticky top-0 bg-slate-900">
-      {children}
-      {userIsLoggedIn && user ? (
-        <Link href="/profile" className="flex items-center">
-          {user.displayName}
-          <Image
-            src={user.imageUrl}
-            className="px-2 rounded-full"
-            width={50}
-            height={50}
-            alt="user profile"
-          />
-        </Link>
-      ) : (
-        <Link href="/api/login" prefetch={false}>Login</Link>
-      )}
+      <div className="flex items-center justify-between px-5 h-50 min-h-50">
+        <Link  href="/">Spotulism</Link>
+        <div className="flex items-center gap-3 justify-end">
+          {children}
+          {userIsLoggedIn && user ? (
+            <Link href="/profile" className="flex items-center">
+              {user.displayName}
+              <Image
+                src={user.imageUrl}
+                className="px-2 rounded-full"
+                width={50}
+                height={50}
+                alt="user profile"
+              />
+            </Link>
+          ) : (
+            <LoginButton/>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

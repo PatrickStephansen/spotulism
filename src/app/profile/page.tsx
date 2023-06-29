@@ -1,31 +1,45 @@
-import { redirect } from "next/navigation";
-import { fetchFromSpotify } from "../_lib/fetch-from-spotify";
+import { cookies } from "next/headers";
 import Image from "next/image";
-import { LoginState } from "../_components/login-state";
 import Link from "next/link";
+import { LoginButton } from "../_components/login-button";
+import { getSpotifySdk } from "../_lib/spotify-sdk";
+import { UserProfile } from "../_types/user-profile";
 
 export default async function Profile() {
-  const profileResponse = await fetchFromSpotify("/v1/me");
-  if (profileResponse.status === 401) {
-    redirect("/api/login");
-  }
-  const profile = await profileResponse.json();
-  const primaryProfileImage = profile.images?.[0];
-
-  return (
-    <div>
-      Hey, you made it. Here's what I know about your profile:
-      <pre>
-        profile retrieved:
-        {JSON.stringify(profile, null, 2)}
-      </pre>
-      <Image
-        src={primaryProfileImage?.url}
-        alt="user profile image"
-        width={primaryProfileImage?.width ?? 200}
-        height={primaryProfileImage?.height ?? 200}
-      />
-      <Link href="/">Home</Link>
-    </div>
+  const userAccessToken = JSON.parse(
+    cookies().get("SPOTIFY_USER_TOKEN")?.value ?? "null"
   );
+  const spotifyApi = getSpotifySdk(userAccessToken);
+  try {
+    const profile = await spotifyApi.currentUser.profile();
+    const primaryProfileImage = profile.images?.[0];
+    const userProfile: UserProfile = {
+      displayName: profile.display_name,
+      imageUrl: primaryProfileImage.url,
+      spotifyId: profile.id,
+      spotifyWebUrl: profile.external_urls.spotify,
+      spotifyApiUrl: profile.href,
+    };
+    return (
+      <div>
+        Hey, you made it. Here's what I know about your profile:
+        <pre>
+          profile retrieved:
+          {JSON.stringify(userProfile, null, 2)}
+        </pre>
+        <Image
+          src={userProfile.imageUrl}
+          alt="user profile image"
+          width={200}
+          height={200}
+        />
+      </div>
+    );
+  } catch {
+    return (
+      <p>
+        You must be logged in to see your profile. <LoginButton />
+      </p>
+    );
+  }
 }
