@@ -1,3 +1,4 @@
+import { getSpotifySdk } from "@/app/_lib/spotify-sdk";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { NextRequest } from "next/server";
@@ -44,8 +45,8 @@ export async function GET(request: NextRequest) {
       )}`,
     });
   }
-  const { access_token, expires_in, refresh_token } =
-    await tokenResponse.json();
+  const token=  await tokenResponse.json();
+  const { access_token, expires_in, refresh_token } =token;
   cookies().delete("SPOTIFY_LOGIN_ANTIFORGERY_TOKEN");
   cookies().set({
     name: "SPOTIFY_REFRESH_TOKEN",
@@ -58,5 +59,10 @@ export async function GET(request: NextRequest) {
     httpOnly: true,
     expires: new Date(Date.now() + expires_in * 1000),
   });
+  cookies().set({
+    name: "SPOTIFY_USER_TOKEN",
+    value: JSON.stringify(token),
+    httpOnly: true
+  })
   redirect("/");
 }
