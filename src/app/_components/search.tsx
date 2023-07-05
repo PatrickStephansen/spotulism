@@ -7,16 +7,34 @@ import Image from "next/image";
 import { SearchMatch } from "../_types/search";
 import {
   ColumnDef,
+  Row,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { ExpandableTable } from "./expandable-table";
 
 interface Props {}
 
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
 const trackColumns = [
+  {
+    header: () => null,
+    id: 'expander',
+    cell: ({row}:{row:any}) => row.getCanExpand() ? (
+      <button
+        {...{
+          onClick: row.getToggleExpandedHandler(),
+          className:"cursor-pointer"
+        }}
+      >
+        {row.getIsExpanded() ? '👇' : '👉'}
+      </button>
+    ) : (
+      '🔵'
+    )
+  },
   trackColumnHelper.accessor("name", {
     cell: (info) => info.getValue(),
     header: () => <span>Name</span>,
@@ -57,6 +75,14 @@ const trackColumns = [
   }),
 ];
 
+const renderSubComponent = ({ row }: { row: Row<SearchMatch["tracks"][0]> }) => {
+  return (
+    <pre style={{ fontSize: '10px' }}>
+      <code>{JSON.stringify(row.original, null, 2)}</code>
+    </pre>
+  )
+}
+
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
   const searchResults = useAtomValue(searchMatches);
@@ -84,37 +110,7 @@ export const Search = ({}: Props) => {
       />
       <h2 className="text-xl m-2">Results</h2>
       <h3 className="text-lg m-2">Tracks</h3>
-      <div className="p-2">
-        <table>
-          <thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <th key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </th>
-                ))}
-              </tr>
-            ))}
-          </thead>
-          <tbody>
-            {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <ExpandableTable data={searchResults.tracks} columns={trackColumns} getRowCanExpand={() => true} renderSubComponent={renderSubComponent}/>
       <pre>{JSON.stringify(searchResults, null, 2)}</pre>
     </>
   );
