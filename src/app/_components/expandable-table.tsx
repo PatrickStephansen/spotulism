@@ -30,7 +30,7 @@ export function ExpandableTable<TData>({
   });
   return (
     <div className="p-2">
-      <table>
+      <table className="table-auto">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>

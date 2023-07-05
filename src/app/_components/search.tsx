@@ -1,16 +1,14 @@
 "use client";
 
 import {
-  Row,
-  createColumnHelper,
-  getCoreRowModel,
-  useReactTable
+  createColumnHelper
 } from "@tanstack/react-table";
 import { useAtom, useAtomValue } from "jotai";
 import Image from "next/image";
 import { ChangeEvent } from "react";
 import { doSearch, searchMatches } from "../_state/current-search";
 import { SearchMatch } from "../_types/search";
+import { DebugTableRow } from "./debug-table-row";
 import { ExpandableTable } from "./expandable-table";
 
 interface Props {}
@@ -47,7 +45,7 @@ const trackColumns = [
   trackColumnHelper.accessor((row) => row.album, {
     id: "album",
     cell: (info) => (
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <Image
           alt="album art"
           width={30}
@@ -72,17 +70,6 @@ const trackColumns = [
   }),
 ];
 
-const renderSubComponent = ({
-  row,
-}: {
-  row: Row<SearchMatch["tracks"][0]>;
-}) => {
-  return (
-    <pre className="text-sm">
-      <code>{JSON.stringify(row.original, null, 2)}</code>
-    </pre>
-  );
-};
 
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
@@ -110,7 +97,7 @@ export const Search = ({}: Props) => {
         data={searchResults.tracks}
         columns={trackColumns}
         getRowCanExpand={() => true}
-        renderSubComponent={renderSubComponent}
+        renderSubComponent={DebugTableRow}
       />
     </>
   );
