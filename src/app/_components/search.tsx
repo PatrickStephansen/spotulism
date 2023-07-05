@@ -13,6 +13,7 @@ interface Props {}
 
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
 const artistColumnHelper = createColumnHelper<SearchMatch["artists"][0]>();
+const albumColumnHelper = createColumnHelper<SearchMatch["albums"][0]>();
 const trackColumns = [
   trackColumnHelper.display({
     cell: ({ row }) =>
@@ -47,8 +48,8 @@ const trackColumns = [
       <div className="flex items-center gap-2">
         <Image
           alt="album art"
-          width={30}
-          height={30}
+          width={50}
+          height={50}
           src={info.getValue()?.previewImageUrl}
         />
         {info.getValue()?.name}
@@ -66,6 +67,9 @@ const trackColumns = [
   ),
   trackColumnHelper.accessor("duration", {
     header: () => <span>Duration</span>,
+  }),
+  trackColumnHelper.accessor("popularityScore", {
+    header: () => <span>Popularity</span>,
   }),
 ];
 
@@ -85,8 +89,72 @@ const artistColumns = [
     header: () => null,
     id: "expander",
   }),
+  artistColumnHelper.accessor((row) => row.previewImageUrl, {
+    header: () => null,
+    id: "artistImage",
+    cell: (info) => (
+      <Image alt="artist_image" src={info.getValue()} width={50} height={50} />
+    ),
+  }),
   artistColumnHelper.accessor("name", {
-    header: () => <span>Name</span>
+    header: () => <span>Name</span>,
+  }),
+  artistColumnHelper.accessor("followers", {
+    header: () => <span>Followers</span>,
+  }),
+  artistColumnHelper.accessor("popularityScore", {
+    header: () => <span>Popularity</span>,
+  }),
+  artistColumnHelper.accessor((row) => row.genres?.join(", ") ?? "", {
+    id: "genres",
+    header: () => <span>Genres</span>,
+  }),
+];
+
+const albumColumns = [
+  albumColumnHelper.display({
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
+        <button
+          onClick={row.getToggleExpandedHandler()}
+          className="cursor-pointer"
+        >
+          {row.getIsExpanded() ? "👇" : "👉"}
+        </button>
+      ) : (
+        "🔵"
+      ),
+    header: () => null,
+    id: "expander",
+  }),
+  albumColumnHelper.accessor((row) => row.previewImageUrl, {
+    id: "albumArt",
+    header: () => null,
+    cell: (info) => (
+      <Image alt="album_image" src={info.getValue()} width={50} height={50} />
+    ),
+  }),
+  albumColumnHelper.accessor("name", {
+    header: () => <span>Name</span>,
+  }),
+  albumColumnHelper.accessor(
+    (row) => row.artists?.map((a) => a.name)?.join(", "),
+    {
+      header: () => <span>Artists</span>,
+      id: "artists",
+    }
+  ),
+  albumColumnHelper.accessor("popularityScore", {
+    header: () => <span>Popularity</span>,
+  }),
+  albumColumnHelper.accessor("releaseDate", {
+    header: () => <span>Release Date</span>,
+  }),
+  albumColumnHelper.accessor("type", {
+    header: () => <span>Release Type</span>,
+  }),
+  albumColumnHelper.accessor("tracksCount", {
+    header: () => <span># tracks</span>,
   }),
 ];
 
@@ -128,6 +196,16 @@ export const Search = ({}: Props) => {
         key="artists-table"
         data={searchResults.artists}
         columns={artistColumns}
+        getRowCanExpand={() => true}
+        renderSubComponent={DebugTableRow}
+      />
+      <h3 className="text-lg m-2" key="albums-header">
+        Albums
+      </h3>
+      <ExpandableTable
+        key="albums-table"
+        data={searchResults.albums}
+        columns={albumColumns}
         getRowCanExpand={() => true}
         renderSubComponent={DebugTableRow}
       />

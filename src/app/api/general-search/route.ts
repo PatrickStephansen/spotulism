@@ -3,6 +3,7 @@ import { SearchMatch } from "@/app/_types/search";
 import {
   ItemTypes,
   TrackWithAlbum,
+  Image,
 } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 import { intervalToDuration } from "date-fns";
 import { cookies } from "next/headers";
@@ -16,6 +17,15 @@ const msToDisplayDuration = (ms: number) => {
   return `${duration.hours?.toString(10).padStart(2, "0")}:${duration.minutes
     ?.toString(10)
     .padStart(2, "0")}:${duration.seconds?.toString(10).padStart(2, "0")}`;
+};
+
+const getSmallestImageUrl = (images: Image[] | null) => {
+  if (!images?.length) return null;
+  return images.reduce((smallest, image) =>
+    image?.height * image?.width < smallest?.height * smallest?.width
+      ? image
+      : smallest
+  )?.url;
 };
 
 export async function GET(request: NextRequest) {
@@ -47,7 +57,7 @@ export async function GET(request: NextRequest) {
         })),
         name: t.name,
         duration: msToDisplayDuration(t.duration_ms),
-        popularity: t.popularity,
+        popularityScore: t.popularity,
         type: t.type,
         trackNumber: t.track_number,
         disc: t.disc_number,
@@ -58,12 +68,9 @@ export async function GET(request: NextRequest) {
           id: (t as TrackWithAlbum)?.album?.id,
           type: (t as TrackWithAlbum)?.album?.album_type,
           genres: (t as TrackWithAlbum)?.album?.genres,
-          previewImageUrl: (t as TrackWithAlbum)?.album?.images?.reduce(
-            (smallest, image) =>
-              image?.height * image?.width < smallest?.height * smallest?.width
-                ? image
-                : smallest
-          )?.url,
+          previewImageUrl: getSmallestImageUrl(
+            (t as TrackWithAlbum)?.album?.images
+          ),
           releaseDate: (t as TrackWithAlbum)?.album?.release_date,
           releaseDatePrecision: (t as TrackWithAlbum)?.album
             ?.release_date_precision,
@@ -71,13 +78,29 @@ export async function GET(request: NextRequest) {
       })),
       artists: searchResults.artists.items.map((a) => ({
         name: a.name,
-        previewImageUrl: a.images?.reduce((smallest, image) =>
-          image?.height * image?.width < smallest?.height * smallest?.width
-            ? image
-            : smallest
-        )?.url,
+        previewImageUrl: getSmallestImageUrl(a.images),
+        genres: a.genres,
+        followers: a.followers?.total ?? "unknown",
+        popularityScore: a.popularity,
       })),
-      albums: [],
+      albums: searchResults.albums.items.map((a) => ({
+        name: a.name,
+        label: a.label,
+        artists: a.artists.map((artist) => ({
+          name: artist.name,
+          id: artist.id,
+          type: artist.type,
+        })),
+        type: a.album_type,
+        releaseDate: a.release_date,
+        releaseDatePrecision: a.release_date_precision,
+        genres: a.genres,
+        populatityScore: a.popularity,
+        previewImageUrl: getSmallestImageUrl(a.images),
+        group: a.album_group,
+        tracksCount: a.total_tracks,
+        id: a.id,
+      })),
       playlists: [],
     };
     return NextResponse.json(responseBody);
