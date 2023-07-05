@@ -1,40 +1,37 @@
 "use client";
 
-import { ChangeEvent } from "react";
-import { doSearch, searchMatches } from "../_state/current-search";
-import { useAtom, useAtomValue } from "jotai";
-import Image from "next/image";
-import { SearchMatch } from "../_types/search";
 import {
-  ColumnDef,
   Row,
   createColumnHelper,
-  flexRender,
   getCoreRowModel,
-  useReactTable,
+  useReactTable
 } from "@tanstack/react-table";
+import { useAtom, useAtomValue } from "jotai";
+import Image from "next/image";
+import { ChangeEvent } from "react";
+import { doSearch, searchMatches } from "../_state/current-search";
+import { SearchMatch } from "../_types/search";
 import { ExpandableTable } from "./expandable-table";
 
 interface Props {}
 
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
 const trackColumns = [
-  {
+  trackColumnHelper.display({
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
+        <button
+          onClick={row.getToggleExpandedHandler()}
+          className="cursor-pointer"
+        >
+          {row.getIsExpanded() ? "👇" : "👉"}
+        </button>
+      ) : (
+        "🔵"
+      ),
     header: () => null,
-    id: 'expander',
-    cell: ({row}:{row:any}) => row.getCanExpand() ? (
-      <button
-        {...{
-          onClick: row.getToggleExpandedHandler(),
-          className:"cursor-pointer"
-        }}
-      >
-        {row.getIsExpanded() ? '👇' : '👉'}
-      </button>
-    ) : (
-      '🔵'
-    )
-  },
+    id: "expander",
+  }),
   trackColumnHelper.accessor("name", {
     cell: (info) => info.getValue(),
     header: () => <span>Name</span>,
@@ -75,13 +72,17 @@ const trackColumns = [
   }),
 ];
 
-const renderSubComponent = ({ row }: { row: Row<SearchMatch["tracks"][0]> }) => {
+const renderSubComponent = ({
+  row,
+}: {
+  row: Row<SearchMatch["tracks"][0]>;
+}) => {
   return (
-    <pre style={{ fontSize: '10px' }}>
+    <pre className="text-sm">
       <code>{JSON.stringify(row.original, null, 2)}</code>
     </pre>
-  )
-}
+  );
+};
 
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
@@ -90,11 +91,6 @@ export const Search = ({}: Props) => {
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchParams({ types: searchParams.types, term: e.target.value });
   };
-  const table = useReactTable({
-    data: searchResults.tracks,
-    columns: trackColumns,
-    getCoreRowModel: getCoreRowModel(),
-  });
 
   return (
     <>
@@ -110,8 +106,12 @@ export const Search = ({}: Props) => {
       />
       <h2 className="text-xl m-2">Results</h2>
       <h3 className="text-lg m-2">Tracks</h3>
-      <ExpandableTable data={searchResults.tracks} columns={trackColumns} getRowCanExpand={() => true} renderSubComponent={renderSubComponent}/>
-      <pre>{JSON.stringify(searchResults, null, 2)}</pre>
+      <ExpandableTable
+        data={searchResults.tracks}
+        columns={trackColumns}
+        getRowCanExpand={() => true}
+        renderSubComponent={renderSubComponent}
+      />
     </>
   );
 };
