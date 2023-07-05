@@ -69,7 +69,14 @@ export async function GET(request: NextRequest) {
             ?.release_date_precision,
         },
       })),
-      artists: [],
+      artists: searchResults.artists.items.map((a) => ({
+        name: a.name,
+        previewImageUrl: a.images?.reduce((smallest, image) =>
+          image?.height * image?.width < smallest?.height * smallest?.width
+            ? image
+            : smallest
+        )?.url,
+      })),
       albums: [],
       playlists: [],
     };

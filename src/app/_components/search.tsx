@@ -1,8 +1,6 @@
 "use client";
 
-import {
-  createColumnHelper
-} from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { useAtom, useAtomValue } from "jotai";
 import Image from "next/image";
 import { ChangeEvent } from "react";
@@ -14,6 +12,7 @@ import { ExpandableTable } from "./expandable-table";
 interface Props {}
 
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
+const artistColumnHelper = createColumnHelper<SearchMatch["artists"][0]>();
 const trackColumns = [
   trackColumnHelper.display({
     cell: ({ row }) =>
@@ -70,6 +69,26 @@ const trackColumns = [
   }),
 ];
 
+const artistColumns = [
+  artistColumnHelper.display({
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
+        <button
+          onClick={row.getToggleExpandedHandler()}
+          className="cursor-pointer"
+        >
+          {row.getIsExpanded() ? "👇" : "👉"}
+        </button>
+      ) : (
+        "🔵"
+      ),
+    header: () => null,
+    id: "expander",
+  }),
+  artistColumnHelper.accessor("name", {
+    header: () => <span>Name</span>
+  }),
+];
 
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
@@ -92,10 +111,23 @@ export const Search = ({}: Props) => {
         value={searchParams.term}
       />
       <h2 className="text-xl m-2">Results</h2>
-      <h3 className="text-lg m-2">Tracks</h3>
+      <h3 className="text-lg m-2" key="tracks-header">
+        Tracks
+      </h3>
       <ExpandableTable
+        key="tracks-table"
         data={searchResults.tracks}
         columns={trackColumns}
+        getRowCanExpand={() => true}
+        renderSubComponent={DebugTableRow}
+      />
+      <h3 className="text-lg m-2" key="artists-header">
+        Artists
+      </h3>
+      <ExpandableTable
+        key="artists-table"
+        data={searchResults.artists}
+        columns={artistColumns}
         getRowCanExpand={() => true}
         renderSubComponent={DebugTableRow}
       />
