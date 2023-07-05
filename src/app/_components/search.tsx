@@ -4,8 +4,58 @@ import { ChangeEvent } from "react";
 import { doSearch, searchMatches } from "../_state/current-search";
 import { useAtom, useAtomValue } from "jotai";
 import Image from "next/image";
+import { SearchMatch } from "../_types/search";
+import {
+  ColumnDef,
+  createColumnHelper,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from "@tanstack/react-table";
 
 interface Props {}
+
+const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
+const trackColumns = [
+  trackColumnHelper.accessor("name", {
+    cell: (info) => info.getValue(),
+    header: () => <span>Name</span>,
+  }),
+  trackColumnHelper.accessor(
+    (row) => row.artists.map((a: any) => a.name).join(", "),
+    {
+      id: "artists",
+      cell: (info) => info.getValue(),
+      header: () => <span>Artists</span>,
+    }
+  ),
+  trackColumnHelper.accessor((row) => row.album, {
+    id: "album",
+    cell: (info) => (
+      <div className="flex items-center">
+        <Image
+          alt="album art"
+          width={30}
+          height={30}
+          src={info.getValue()?.previewImageUrl}
+        />
+        {info.getValue()?.name}
+      </div>
+    ),
+    header: () => <span>Album</span>,
+  }),
+  trackColumnHelper.accessor(
+    (row) => row.album?.releaseDate ?? "unknown release date",
+    {
+      id: "releaseDate",
+      cell: (info) => info.getValue(),
+      header: () => <span>Release Date</span>,
+    }
+  ),
+  trackColumnHelper.accessor("duration", {
+    header: () => <span>Duration</span>,
+  }),
+];
 
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
@@ -14,6 +64,11 @@ export const Search = ({}: Props) => {
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchParams({ types: searchParams.types, term: e.target.value });
   };
+  const table = useReactTable({
+    data: searchResults.tracks,
+    columns: trackColumns,
+    getCoreRowModel: getCoreRowModel(),
+  });
 
   return (
     <>
@@ -29,28 +84,37 @@ export const Search = ({}: Props) => {
       />
       <h2 className="text-xl m-2">Results</h2>
       <h3 className="text-lg m-2">Tracks</h3>
-      <table>
-        <thead>
-          <th>Name</th>
-          <th>Artist</th>
-          <th>Album</th>
-          <th>Release Date</th>
-          <th>Duration</th>
-        </thead>
-        <tbody>
-          {searchResults.tracks.map((t) => (
-            <tr key={t.id}>
-              <td>{t.name}</td>
-              <td>{t.artists.map((a) => a.name).join(", ")}</td>
-              <td className="flex items-center"><Image alt="album art" width={30} height={30} src={t.album?.previewImageUrl} />{t?.album?.name}</td>
-              <td>
-                {t.album?.releaseDate ?? "unknown release date"}
-              </td>
-              <td>{t.duration}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <div className="p-2">
+        <table>
+          <thead>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <tr key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <th key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </th>
+                ))}
+              </tr>
+            ))}
+          </thead>
+          <tbody>
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <td key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </td>
+                ))}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <pre>{JSON.stringify(searchResults, null, 2)}</pre>
     </>
   );
