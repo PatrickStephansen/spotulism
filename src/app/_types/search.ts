@@ -5,6 +5,8 @@ export interface SearchMatch {
   artists: any[];
   albums: any[];
   playlists: any[];
+  isSearching: boolean;
+  isSearchComplete: boolean;
 }
 
 export interface SearchParameters {

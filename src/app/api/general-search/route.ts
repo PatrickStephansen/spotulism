@@ -80,7 +80,7 @@ export async function GET(request: NextRequest) {
         name: a.name,
         previewImageUrl: getSmallestImageUrl(a.images),
         genres: a.genres,
-        followers: a.followers?.total ?? "unknown",
+        followersCount: a.followers?.total ?? "unknown",
         popularityScore: a.popularity,
       })),
       albums: searchResults.albums.items.map((a) => ({
@@ -101,7 +101,14 @@ export async function GET(request: NextRequest) {
         tracksCount: a.total_tracks,
         id: a.id,
       })),
-      playlists: [],
+      playlists: searchResults.playlists.items.map(p => ({
+        name: p.name,
+        description: p.description,
+        creator: p.owner,
+        isCollaborative: p.collaborative,
+        isPublic: p.public,
+        followersCount: p.followers
+      })),
     };
     return NextResponse.json(responseBody);
   } catch (error: any) {

@@ -6,6 +6,15 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    if (!body.access_token) {
+      return new NextResponse(
+        JSON.stringify({
+          message:
+            "No access token. User must give permission through Spotify and do a full page reload.",
+        }),
+        { status: 401 }
+      );
+    }
     const sdk = getSpotifySdk(body);
     const profile = await sdk.currentUser.profile();
     const primaryProfileImage = profile.images?.[0];

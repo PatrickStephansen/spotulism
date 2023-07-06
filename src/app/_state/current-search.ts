@@ -1,20 +1,22 @@
 import { Setter, atom } from "jotai";
+import { Subject, debounceTime } from "rxjs";
 import { SearchMatch, SearchParameters } from "../_types/search";
-import { Observable, debounceTime, Subject, tap } from "rxjs";
 
 export const currentSearchTerm = atom<SearchParameters["term"]>("");
 export const currentSearchTypes = atom<SearchParameters["types"]>([
   "album",
   "artist",
   "playlist",
-  "track"
+  "track",
 ]);
 
 export const searchMatches = atom<SearchMatch>({
   tracks: [],
   artists: [],
   albums: [],
-  playlists: []
+  playlists: [],
+  isSearching: false,
+  isSearchComplete: false,
 });
 
 interface SubjectParams {
@@ -29,7 +31,11 @@ searchSubject.pipe(debounceTime(200)).subscribe(async ({ search, set }) => {
       search.term
     )}&types=${search.types.join("&types=")}`
   );
-  set(searchMatches, (await searchResults.json()) as SearchMatch);
+  set(searchMatches, {
+    ...(await searchResults.json()),
+    isSearchComplete: true,
+    isSearching: false,
+  } as SearchMatch);
 });
 
 export const doSearch = atom(
@@ -46,9 +52,16 @@ export const doSearch = atom(
         tracks: [],
         artists: [],
         albums: [],
-        playlists: []
+        playlists: [],
+        isSearching: false,
+        isSearchComplete: false,
       });
     } else {
+      set(searchMatches, (m) => ({
+        ...m,
+        isSearching: true,
+        isSearchComplete: false,
+      }));
       searchSubject.next({ search: newSearch, set });
     }
   }

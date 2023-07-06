@@ -99,7 +99,7 @@ const artistColumns = [
   artistColumnHelper.accessor("name", {
     header: () => <span>Name</span>,
   }),
-  artistColumnHelper.accessor("followers", {
+  artistColumnHelper.accessor("followersCount", {
     header: () => <span>Followers</span>,
   }),
   artistColumnHelper.accessor("popularityScore", {
@@ -178,37 +178,43 @@ export const Search = ({}: Props) => {
         onChange={handleSearchInput}
         value={searchParams.term}
       />
-      <h2 className="text-xl m-2">Results</h2>
-      <h3 className="text-lg m-2" key="tracks-header">
-        Tracks
-      </h3>
-      <ExpandableTable
-        key="tracks-table"
-        data={searchResults.tracks}
-        columns={trackColumns}
-        getRowCanExpand={() => true}
-        renderSubComponent={DebugTableRow}
-      />
-      <h3 className="text-lg m-2" key="artists-header">
-        Artists
-      </h3>
-      <ExpandableTable
-        key="artists-table"
-        data={searchResults.artists}
-        columns={artistColumns}
-        getRowCanExpand={() => true}
-        renderSubComponent={DebugTableRow}
-      />
-      <h3 className="text-lg m-2" key="albums-header">
-        Albums
-      </h3>
-      <ExpandableTable
-        key="albums-table"
-        data={searchResults.albums}
-        columns={albumColumns}
-        getRowCanExpand={() => true}
-        renderSubComponent={DebugTableRow}
-      />
+      {searchResults.isSearching ? (
+        <div>Loading...</div>
+      ) : !searchResults.isSearchComplete ? null : (
+        <>
+          <h2 className="text-xl m-2">Results</h2>
+          <h3 className="text-lg m-2" key="tracks-header">
+            Tracks
+          </h3>
+          <ExpandableTable
+            key="tracks-table"
+            data={searchResults.tracks}
+            columns={trackColumns}
+            getRowCanExpand={() => true}
+            renderSubComponent={DebugTableRow}
+          />
+          <h3 className="text-lg m-2" key="artists-header">
+            Artists
+          </h3>
+          <ExpandableTable
+            key="artists-table"
+            data={searchResults.artists}
+            columns={artistColumns}
+            getRowCanExpand={() => true}
+            renderSubComponent={DebugTableRow}
+          />
+          <h3 className="text-lg m-2" key="albums-header">
+            Albums
+          </h3>
+          <ExpandableTable
+            key="albums-table"
+            data={searchResults.albums}
+            columns={albumColumns}
+            getRowCanExpand={() => true}
+            renderSubComponent={DebugTableRow}
+          />
+        </>
+      )}
     </>
   );
 };
