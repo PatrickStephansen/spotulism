@@ -1,10 +1,9 @@
-import "./globals.css";
 import { Inter } from "next/font/google";
-import { UserBar } from "./_components/user-bar";
-import { AppStateProvider } from "./_components/state-provider";
-import { LoginState } from "./_components/login-state";
 import { cookies } from "next/headers";
-import Link from "next/link";
+import { LoginState } from "./_components/login-state";
+import { AppStateProvider } from "./_components/state-provider";
+import { UserBar } from "./_components/user-bar";
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,6 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const isUserLoggedIn = cookies().has("SPOTIFY_USER_TOKEN");
+  console.log("layout render with user logged in", isUserLoggedIn);
   return (
     <html lang="en">
       <body className={inter.className}>

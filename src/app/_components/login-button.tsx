@@ -1,13 +1,13 @@
 "use client";
 
 import { SpotifyApi } from "@spotify/web-api-ts-sdk";
-import { useSetAtom } from "jotai";
-import { useCallback } from "react";
+import { useAtom, useSetAtom } from "jotai";
+import { useCallback, useEffect, useSyncExternalStore } from "react";
 import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import { userProfile } from "../_state/user-profile";
 
 export const LoginButton = () => {
-  const setLoggedIn = useSetAtom(userHasLoggedIn);
+  const [isLoggedIn, setLoggedIn] = useAtom(userHasLoggedIn);
   const setProfile = useSetAtom(userProfile);
   const login = useCallback(() => {
     SpotifyApi.performUserAuthorization(
@@ -31,6 +31,12 @@ export const LoginButton = () => {
       { fetch }
     );
   }, []);
+  useEffect(() => {
+    // This could go badly if there's more than one of this component on the page
+    if (!isLoggedIn && window.localStorage.getItem("spotify-sdk:verifier")) {
+      login();
+    }
+  }, [isLoggedIn, setLoggedIn]);
 
   return (
     <button type="button" className="border rounded p-2" onClick={login}>
