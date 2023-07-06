@@ -13,7 +13,7 @@ interface TableProps<TData> {
   columns: ColumnDef<TData>[];
   renderSubComponent: (props: { row: Row<TData> }) => React.ReactElement;
   getRowCanExpand: (row: Row<TData>) => boolean;
-};
+}
 
 export function ExpandableTable<TData>({
   data,
@@ -29,14 +29,18 @@ export function ExpandableTable<TData>({
     getExpandedRowModel: getExpandedRowModel(),
   });
   return (
-    <div className="p-2">
+    <div className="p-2 overflow-x-auto">
       <table className="table-auto">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
               {headerGroup.headers.map((header) => {
                 return (
-                  <th key={header.id} colSpan={header.colSpan}>
+                  <th
+                    key={header.id}
+                    colSpan={header.colSpan}
+                    style={{ width: `${header.getSize()}px` }}
+                  >
                     {header.isPlaceholder ? null : (
                       <div>
                         {flexRender(
@@ -60,10 +64,20 @@ export function ExpandableTable<TData>({
                   {row.getVisibleCells().map((cell) => {
                     return (
                       <td key={cell.id}>
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        <div
+                          className="line-clamp-1"
+                          {...{
+                            title:
+                              typeof cell.getValue() == "string"
+                                ? (cell.getValue() as string)
+                                : undefined,
+                          }}
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </div>
                       </td>
                     );
                   })}

@@ -104,10 +104,14 @@ export async function GET(request: NextRequest) {
       playlists: searchResults.playlists.items.map(p => ({
         name: p.name,
         description: p.description,
-        creator: p.owner,
+        creator: {name: p.owner.display_name, id: p.owner.id, type: p.owner.type},
         isCollaborative: p.collaborative,
         isPublic: p.public,
-        followersCount: p.followers
+        followersCount: p.followers,
+        id: p.id,
+        previewImageUrl: getSmallestImageUrl(p.images),
+        type: p.type,
+        colour: p.primary_color
       })),
     };
     return NextResponse.json(responseBody);

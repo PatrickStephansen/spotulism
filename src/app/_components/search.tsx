@@ -14,6 +14,7 @@ interface Props {}
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
 const artistColumnHelper = createColumnHelper<SearchMatch["artists"][0]>();
 const albumColumnHelper = createColumnHelper<SearchMatch["albums"][0]>();
+const playlistColumnHelper = createColumnHelper<SearchMatch["playlists"][0]>();
 const trackColumns = [
   trackColumnHelper.display({
     cell: ({ row }) =>
@@ -158,6 +159,42 @@ const albumColumns = [
   }),
 ];
 
+const playlistColumns = [
+  playlistColumnHelper.display({
+    cell: ({ row }) =>
+      row.getCanExpand() ? (
+        <button
+          onClick={row.getToggleExpandedHandler()}
+          className="cursor-pointer"
+        >
+          {row.getIsExpanded() ? "👇" : "👉"}
+        </button>
+      ) : (
+        "🔵"
+      ),
+    header: () => null,
+    id: "expander",
+  }),
+  albumColumnHelper.accessor((row) => row.previewImageUrl, {
+    id: "playlistArt",
+    header: () => null,
+    cell: (info) => (
+      <Image alt="playlist_image" src={info.getValue()} width={50} height={50} />
+    ),
+  }),
+  playlistColumnHelper.accessor("name", {
+    header: () => <span>Name</span>,
+  }),
+  playlistColumnHelper.accessor("description", {
+    header: () => <span className="text-ellipsis max-w-30">Description</span>,
+    cell: (info)=><span title={info.getValue()}>{info.getValue()}</span>
+  }),
+  playlistColumnHelper.accessor((row) => row.creator.name, {
+    header: () => <span>Creator</span>,
+    id: "creatorName",
+  }),
+];
+
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
   const searchResults = useAtomValue(searchMatches);
@@ -210,6 +247,16 @@ export const Search = ({}: Props) => {
             key="albums-table"
             data={searchResults.albums}
             columns={albumColumns}
+            getRowCanExpand={() => true}
+            renderSubComponent={DebugTableRow}
+          />
+          <h3 className="text-lg m-2" key="playlists-header">
+            Playlists
+          </h3>
+          <ExpandableTable
+            key="playlists-table"
+            data={searchResults.playlists}
+            columns={playlistColumns}
             getRowCanExpand={() => true}
             renderSubComponent={DebugTableRow}
           />
