@@ -19,13 +19,13 @@ const msToDisplayDuration = (ms: number) => {
     .padStart(2, "0")}:${duration.seconds?.toString(10).padStart(2, "0")}`;
 };
 
-const getSmallestImageUrl = (images: Image[] | null) => {
+const getSmallestImage = (images: Image[] | null) => {
   if (!images?.length) return null;
   return images.reduce((smallest, image) =>
     image?.height * image?.width < smallest?.height * smallest?.width
       ? image
       : smallest
-  )?.url;
+  );
 };
 
 export async function GET(request: NextRequest) {
@@ -68,9 +68,7 @@ export async function GET(request: NextRequest) {
           id: (t as TrackWithAlbum)?.album?.id,
           type: (t as TrackWithAlbum)?.album?.album_type,
           genres: (t as TrackWithAlbum)?.album?.genres,
-          previewImageUrl: getSmallestImageUrl(
-            (t as TrackWithAlbum)?.album?.images
-          ),
+          previewImage: getSmallestImage((t as TrackWithAlbum)?.album?.images),
           releaseDate: (t as TrackWithAlbum)?.album?.release_date,
           releaseDatePrecision: (t as TrackWithAlbum)?.album
             ?.release_date_precision,
@@ -78,7 +76,7 @@ export async function GET(request: NextRequest) {
       })),
       artists: searchResults.artists.items.map((a) => ({
         name: a.name,
-        previewImageUrl: getSmallestImageUrl(a.images),
+        previewImage: getSmallestImage(a.images),
         genres: a.genres,
         followersCount: a.followers?.total ?? "unknown",
         popularityScore: a.popularity,
@@ -96,23 +94,29 @@ export async function GET(request: NextRequest) {
         releaseDatePrecision: a.release_date_precision,
         genres: a.genres,
         populatityScore: a.popularity,
-        previewImageUrl: getSmallestImageUrl(a.images),
+        previewImage: getSmallestImage(a.images),
         group: a.album_group,
         tracksCount: a.total_tracks,
         id: a.id,
       })),
-      playlists: searchResults.playlists.items.map(p => ({
+      playlists: searchResults.playlists.items.map((p) => ({
         name: p.name,
         description: p.description,
-        creator: {name: p.owner.display_name, id: p.owner.id, type: p.owner.type},
+        creator: {
+          name: p.owner.display_name,
+          id: p.owner.id,
+          type: p.owner.type,
+        },
         isCollaborative: p.collaborative,
         isPublic: p.public,
         followersCount: p.followers,
         id: p.id,
-        previewImageUrl: getSmallestImageUrl(p.images),
+        previewImage: getSmallestImage(p.images),
         type: p.type,
-        colour: p.primary_color
+        colour: p.primary_color,
       })),
+      isSearchComplete: true,
+      isSearching: false,
     };
     return NextResponse.json(responseBody);
   } catch (error: any) {

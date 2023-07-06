@@ -25,6 +25,7 @@ export function ExpandableTable<TData>({
     data,
     columns,
     getRowCanExpand,
+    columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
   });
@@ -40,6 +41,7 @@ export function ExpandableTable<TData>({
                     key={header.id}
                     colSpan={header.colSpan}
                     style={{ width: `${header.getSize()}px` }}
+                    className="relative group"
                   >
                     {header.isPlaceholder ? null : (
                       <div>
@@ -49,6 +51,11 @@ export function ExpandableTable<TData>({
                         )}
                       </div>
                     )}
+                    <div
+                      key={header.id + "resizer"}
+                      className="w-2 ml-1 group-hover:bg-green-600 h-full absolute select-none right-0 top-0 cursor-col-resize"
+                      onPointerDown={header.getResizeHandler()}
+                    ></div>
                   </th>
                 );
               })}

@@ -31,11 +31,7 @@ searchSubject.pipe(debounceTime(200)).subscribe(async ({ search, set }) => {
       search.term
     )}&types=${search.types.join("&types=")}`
   );
-  set(searchMatches, {
-    ...(await searchResults.json()),
-    isSearchComplete: true,
-    isSearching: false,
-  } as SearchMatch);
+  set(searchMatches, (await searchResults.json()) as SearchMatch);
 });
 
 export const doSearch = atom(

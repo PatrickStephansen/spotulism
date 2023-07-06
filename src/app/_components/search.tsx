@@ -29,11 +29,13 @@ const trackColumns = [
         "🔵"
       ),
     header: () => null,
+    size: 30,
     id: "expander",
   }),
   trackColumnHelper.accessor("name", {
     cell: (info) => info.getValue(),
     header: () => <span>Name</span>,
+    size: 250,
   }),
   trackColumnHelper.accessor(
     (row) => row.artists.map((a: any) => a.name).join(", "),
@@ -41,22 +43,27 @@ const trackColumns = [
       id: "artists",
       cell: (info) => info.getValue(),
       header: () => <span>Artists</span>,
+      size: 250,
     }
   ),
-  trackColumnHelper.accessor((row) => row.album, {
-    id: "album",
+  trackColumnHelper.accessor((row) => row.album?.previewImage, {
+    header: () => null,
+    id: "trackImage",
+    size: 56,
     cell: (info) => (
-      <div className="flex items-center gap-2">
-        <Image
-          alt="album art"
-          width={50}
-          height={50}
-          src={info.getValue()?.previewImageUrl}
-        />
-        {info.getValue()?.name}
-      </div>
+      <Image
+        alt="track_image"
+        src={info.getValue()?.url}
+        width={info.getValue()?.width ?? 50}
+        height={info.getValue()?.height ?? 50}
+      />
     ),
+  }),
+  trackColumnHelper.accessor((row) => row.album.name, {
+    id: "album",
+    cell: (info) => info.getValue(),
     header: () => <span>Album</span>,
+    size: 250,
   }),
   trackColumnHelper.accessor(
     (row) => row.album?.releaseDate ?? "unknown release date",
@@ -64,13 +71,16 @@ const trackColumns = [
       id: "releaseDate",
       cell: (info) => info.getValue(),
       header: () => <span>Release Date</span>,
+      size: 100,
     }
   ),
   trackColumnHelper.accessor("duration", {
     header: () => <span>Duration</span>,
+    size: 75,
   }),
   trackColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
+    size: 75,
   }),
 ];
 
@@ -88,27 +98,39 @@ const artistColumns = [
         "🔵"
       ),
     header: () => null,
+    size: 30,
     id: "expander",
   }),
-  artistColumnHelper.accessor((row) => row.previewImageUrl, {
+  artistColumnHelper.accessor((row) => row.previewImage, {
     header: () => null,
     id: "artistImage",
+    size: 56,
     cell: (info) => (
-      <Image alt="artist_image" src={info.getValue()} width={50} height={50} />
+      <Image
+        alt="artist_image"
+        src={info.getValue()?.url}
+        width={info.getValue()?.width ?? 50}
+        height={info.getValue()?.height ?? 50}
+      />
     ),
   }),
   artistColumnHelper.accessor("name", {
     header: () => <span>Name</span>,
+    size: 250,
   }),
   artistColumnHelper.accessor("followersCount", {
     header: () => <span>Followers</span>,
+    cell: info => info.getValue().toLocaleString(),
+    size: 75,
   }),
   artistColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
+    size: 75,
   }),
   artistColumnHelper.accessor((row) => row.genres?.join(", ") ?? "", {
     id: "genres",
     header: () => <span>Genres</span>,
+    size: 250,
   }),
 ];
 
@@ -126,36 +148,49 @@ const albumColumns = [
         "🔵"
       ),
     header: () => null,
+    size: 30,
     id: "expander",
   }),
-  albumColumnHelper.accessor((row) => row.previewImageUrl, {
+  albumColumnHelper.accessor((row) => row.previewImage, {
     id: "albumArt",
     header: () => null,
+    size: 56,
     cell: (info) => (
-      <Image alt="album_image" src={info.getValue()} width={50} height={50} />
+      <Image
+        alt="album_image"
+        src={info.getValue()?.url}
+        width={info.getValue()?.width ?? 50}
+        height={info.getValue()?.height ?? 50}
+      />
     ),
   }),
   albumColumnHelper.accessor("name", {
     header: () => <span>Name</span>,
+    size: 250,
   }),
   albumColumnHelper.accessor(
     (row) => row.artists?.map((a) => a.name)?.join(", "),
     {
       header: () => <span>Artists</span>,
       id: "artists",
+      size: 250,
     }
   ),
   albumColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
+    size: 75,
   }),
   albumColumnHelper.accessor("releaseDate", {
     header: () => <span>Release Date</span>,
+    size: 75,
   }),
   albumColumnHelper.accessor("type", {
     header: () => <span>Release Type</span>,
+    size: 75,
   }),
   albumColumnHelper.accessor("tracksCount", {
     header: () => <span># tracks</span>,
+    size: 50,
   }),
 ];
 
@@ -173,25 +208,35 @@ const playlistColumns = [
         "🔵"
       ),
     header: () => null,
+    size: 30,
     id: "expander",
   }),
-  albumColumnHelper.accessor((row) => row.previewImageUrl, {
+  albumColumnHelper.accessor((row) => row.previewImage, {
     id: "playlistArt",
     header: () => null,
+    size: 56,
     cell: (info) => (
-      <Image alt="playlist_image" src={info.getValue()} width={50} height={50} />
+      <Image
+        alt="playlist_image"
+        src={info.getValue()?.url}
+        width={info.getValue()?.width ?? 50}
+        height={info.getValue()?.height ?? 50}
+      />
     ),
   }),
   playlistColumnHelper.accessor("name", {
     header: () => <span>Name</span>,
+    size: 250,
   }),
   playlistColumnHelper.accessor("description", {
     header: () => <span className="text-ellipsis max-w-30">Description</span>,
-    cell: (info)=><span title={info.getValue()}>{info.getValue()}</span>
+    cell: (info) => <span title={info.getValue()}>{info.getValue()}</span>,
+    size: 250,
   }),
   playlistColumnHelper.accessor((row) => row.creator.name, {
     header: () => <span>Creator</span>,
     id: "creatorName",
+    size: 250,
   }),
 ];
 
