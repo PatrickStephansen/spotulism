@@ -77,10 +77,12 @@ const trackColumns = [
   trackColumnHelper.accessor("duration", {
     header: () => <span>Duration</span>,
     size: 75,
+    cell: (info) => <div className="text-right">{info.getValue()}</div>
   }),
   trackColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
     size: 75,
+    cell: (info) => <div className="text-right">{info.getValue()}</div>
   }),
 ];
 
@@ -120,12 +122,13 @@ const artistColumns = [
   }),
   artistColumnHelper.accessor("followersCount", {
     header: () => <span>Followers</span>,
-    cell: info => info.getValue().toLocaleString(),
     size: 75,
+    cell: (info) => <div className="text-right">{info.getValue()?.toLocaleString()}</div>
   }),
   artistColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
     size: 75,
+    cell: (info) => <div className="text-right">{info.getValue()}</div>
   }),
   artistColumnHelper.accessor((row) => row.genres?.join(", ") ?? "", {
     id: "genres",
@@ -179,6 +182,7 @@ const albumColumns = [
   albumColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
     size: 75,
+    cell: (info) => <div className="text-right">{info.getValue()}</div>
   }),
   albumColumnHelper.accessor("releaseDate", {
     header: () => <span>Release Date</span>,
@@ -191,6 +195,7 @@ const albumColumns = [
   albumColumnHelper.accessor("tracksCount", {
     header: () => <span># tracks</span>,
     size: 50,
+    cell: (info) => <div className="text-right">{info.getValue()}</div>
   }),
 ];
 
@@ -237,6 +242,11 @@ const playlistColumns = [
     header: () => <span>Creator</span>,
     id: "creatorName",
     size: 250,
+  }),
+  playlistColumnHelper.accessor("followersCount", {
+    header: () => <span>Followers</span>,
+    size: 75,
+    cell: (info) => <div className="text-right">{info.getValue()?.toLocaleString()}</div>
   }),
 ];
 

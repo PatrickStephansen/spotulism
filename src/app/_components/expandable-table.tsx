@@ -53,7 +53,7 @@ export function ExpandableTable<TData>({
                     )}
                     <div
                       key={header.id + "resizer"}
-                      className="w-2 ml-1 group-hover:bg-green-600 h-full absolute select-none right-0 top-0 cursor-col-resize"
+                      className="w-1 ml-2 group-hover:bg-green-600 h-full absolute select-none right-0 top-0 cursor-col-resize"
                       onPointerDown={header.getResizeHandler()}
                     ></div>
                   </th>
