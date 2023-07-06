@@ -9,8 +9,10 @@ const nextConfig = {
       },
       {
         protocol: "https",
-        hostname: "i.scdn.co"
-      }
+        hostname: "i.scdn.co",
+      },
+      { protocol: "https", hostname: "*.spotifycdn.com" },
+      { protocol: "https", hostname: "*.scdn.co" },
     ],
   },
 };
