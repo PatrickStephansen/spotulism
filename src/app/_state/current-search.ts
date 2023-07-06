@@ -10,6 +10,8 @@ export const currentSearchTypes = atom<SearchParameters["types"]>([
   "track",
 ]);
 
+const currentSearchAbort = atom<AbortController>(new AbortController());
+
 export const searchMatches = atom<SearchMatch>({
   tracks: [],
   artists: [],
@@ -22,17 +24,25 @@ export const searchMatches = atom<SearchMatch>({
 interface SubjectParams {
   search: SearchParameters;
   set: Setter;
+  abort: AbortController;
 }
 
 const searchSubject = new Subject<SubjectParams>();
-searchSubject.pipe(debounceTime(200)).subscribe(async ({ search, set }) => {
-  const searchResults = await fetch(
-    `/api/general-search?term=${encodeURIComponent(
-      search.term
-    )}&types=${search.types.join("&types=")}`
-  );
-  set(searchMatches, (await searchResults.json()) as SearchMatch);
-});
+searchSubject
+  .pipe(debounceTime(200))
+  .subscribe(async ({ search, set, abort }) => {
+    try {
+      const searchResults = await fetch(
+        `/api/general-search?term=${encodeURIComponent(
+          search.term
+        )}&types=${search.types.join("&types=")}`,
+        { signal: abort.signal }
+      );
+      set(searchMatches, (await searchResults.json()) as SearchMatch);
+    } catch (error) {
+      if (error !== "newer search started") throw error;
+    }
+  });
 
 export const doSearch = atom(
   (get) =>
@@ -40,9 +50,11 @@ export const doSearch = atom(
       term: get(currentSearchTerm),
       types: get(currentSearchTypes),
     } as SearchParameters),
-  async (_get, set, newSearch: SearchParameters) => {
+  async (get, set, newSearch: SearchParameters) => {
+    get(currentSearchAbort).abort("newer search started");
     set(currentSearchTerm, newSearch.term);
     set(currentSearchTypes, newSearch.types);
+    set(currentSearchAbort, new AbortController());
     if (newSearch.term.length < 1 || newSearch.types.length === 0) {
       set(searchMatches, {
         tracks: [],
@@ -58,7 +70,11 @@ export const doSearch = atom(
         isSearching: true,
         isSearchComplete: false,
       }));
-      searchSubject.next({ search: newSearch, set });
+      searchSubject.next({
+        search: newSearch,
+        set,
+        abort: get(currentSearchAbort),
+      });
     }
   }
 );
