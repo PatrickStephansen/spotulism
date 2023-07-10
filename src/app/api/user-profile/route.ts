@@ -13,10 +13,10 @@ export async function GET() {
   const spotifyApi = getSpotifySdk(userAccessToken);
   try {
     const profile = await spotifyApi.currentUser.profile();
-    const primaryProfileImage = profile.images?.[0];
+    const primaryProfileImage = profile.images?.at(-1);
     const userProfile: UserProfile = {
       displayName: profile.display_name,
-      imageUrl: primaryProfileImage.url,
+      imageUrl: primaryProfileImage?.url,
       spotifyId: profile.id,
       spotifyWebUrl: profile.external_urls.spotify,
       spotifyApiUrl: profile.href,

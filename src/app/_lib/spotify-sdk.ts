@@ -21,35 +21,36 @@ const refreshToken = async (clientId: string, refreshToken: string) => {
   return { ...json, expires: Date.now() + json.expires_in * 1000 };
 };
 
-const createRefreshTokenErrorHandler = (currentToken: AccessToken) => ({
-  async handleErrors(error: any): Promise<boolean> {
-    if (error?.message?.includes("expired token")) {
-      try {
-        const newToken = await refreshToken(
-          process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID ?? "",
-          currentToken.refresh_token
-        );
-        console.log(
-          "refreshed token on error, but don't know what to do now",
-          newToken
-        );
-        cookies().set({
-          name: "SPOTIFY_USER_TOKEN",
-          value: JSON.stringify(newToken),
-          httpOnly: false,
-          sameSite: "strict",
-        });
-        return true;
-      } catch (error) {
-        console.error("Error trying to refresh token", error);
-      }
-    }
-    return false;
-  },
-});
-
 export const getSpotifySdk = (userToken: AccessToken) =>
   SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID ?? "", userToken, {
     fetch,
-    errorHandler: createRefreshTokenErrorHandler(userToken),
+    async afterRequest(url, options, response) {
+      try {
+        // afterRequest is called synchronously, but since we've already done the request, the cache entry should be available and should be returned immediately
+        const potentiallyRenewedToken =
+          await this.cachingStrategy?.get<AccessToken>(
+            "spotify-sdk:ProvidedAccessTokenStrategy:token"
+          );
+        const existingCookieToken = JSON.parse(
+          cookies().get("SPOTIFY_USER_TOKEN")?.value ?? "{}"
+        );
+        if (
+          potentiallyRenewedToken &&
+          (existingCookieToken.access_token !==
+            potentiallyRenewedToken.access_token ||
+            existingCookieToken.refresh_token !==
+              potentiallyRenewedToken.refresh_token)
+        ) {
+          cookies().set({
+            name: "SPOTIFY_USER_TOKEN",
+            value: JSON.stringify(potentiallyRenewedToken),
+            httpOnly: false,
+            sameSite: "strict",
+          });
+          console.log("updated Spotify cookie token");
+        }
+      } catch (error) {
+        console.warn("access token cookie update failed", error);
+      }
+    },
   });
