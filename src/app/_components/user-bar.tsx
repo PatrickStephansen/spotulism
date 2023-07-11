@@ -6,8 +6,14 @@ import { PropsWithChildren, useEffect } from "react";
 import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import { userProfile } from "../_state/user-profile";
 import { LoginButton } from "./login-button";
+import { useHydrateAtoms } from "jotai/utils";
 
-export const UserBar = ({ children }: PropsWithChildren) => {
+interface Props {
+  isLoggedIn: boolean;
+}
+
+export const UserBar = ({ isLoggedIn, children }: PropsWithChildren<Props>) => {
+  useHydrateAtoms([[userHasLoggedIn, isLoggedIn]]);
   const [user, setUser] = useAtom(userProfile);
   const userIsLoggedIn = useAtomValue(userHasLoggedIn);
 
@@ -27,11 +33,11 @@ export const UserBar = ({ children }: PropsWithChildren) => {
         <Link  href="/">Spotulism</Link>
         <div className="flex items-center gap-3 justify-end">
           {children}
-          {userIsLoggedIn && user ? (
+          {userIsLoggedIn ? (
             <Link href="/profile" className="flex items-center">
-              {user.displayName}
+              {user?.displayName ?? "User Loading..."}
               <Image
-                src={user.imageUrl}
+                src={user?.imageUrl ?? "/default-profile.png"}
                 className="px-2 rounded-full"
                 width={50}
                 height={50}

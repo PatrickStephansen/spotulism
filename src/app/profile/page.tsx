@@ -28,7 +28,7 @@ export default async function Profile() {
           {JSON.stringify(userProfile, null, 2)}
         </pre>
         <Image
-          src={userProfile.imageUrl}
+          src={userProfile?.imageUrl ?? "/default-profile.png"}
           alt="user profile image"
           width={200}
           height={200}

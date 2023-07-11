@@ -18,13 +18,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const isUserLoggedIn = cookies().has("SPOTIFY_USER_TOKEN");
-  console.log("layout render with user logged in", isUserLoggedIn);
   return (
     <html lang="en">
       <body className={inter.className}>
         <AppStateProvider>
-          <UserBar>
-            <LoginState serverSaysYes={isUserLoggedIn} />
+          <UserBar isLoggedIn={isUserLoggedIn}>
           </UserBar>
           <div className="main content px-5 py-1">{children}</div>
         </AppStateProvider>
