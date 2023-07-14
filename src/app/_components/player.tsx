@@ -22,13 +22,13 @@ const getCookie = (name: string) =>
 export const Player = () => {
   const userIsLoggedIn = useAtomValue(userHasLoggedIn);
   const [devices, setDevices] = useState<any[]>([]);
+  const [thisDeviceId, setThisDeviceId] = useState<string>();
   const [activeDevice, setActiveDevice] = useState<string>();
   const [activeDeviceQuery, setActiveDeviceQuery] = useState(
     new AbortController()
   );
   const [playState, setPlayState] = useState<"pause" | "play">("pause");
   // from spotify's example at https://github.com/spotify/spotify-web-playback-sdk-example/blob/main/src/WebPlayback.jsx
-  const [is_active, setActive] = useState(false);
   const [player, setPlayer] = useState(undefined);
   const [current_track, setTrack] = useState(track);
   const [currentTrackProgress, setCurrentTrackProgress] = useState(0);
@@ -45,6 +45,7 @@ export const Player = () => {
       setPlayer(player);
       player.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
+        setThisDeviceId(device_id)
         setDevices((d) => [...d, { id: device_id, name: "Spotulism" }]);
       });
       player.addListener("not_ready", ({ device_id }) => {
@@ -73,17 +74,10 @@ export const Player = () => {
           const active = d.find((device) => device.is_active);
           if (active) {
             setActiveDevice(active.id);
-            if (active.name == "Spotulism") {
-              console.log('device list activated player')
-              setActive(true);
-            } else {
-              console.log('device list deactivated player')
-              setActive(false);
-            }
           }
         });
     }
-  }, [setDevices, setActiveDevice, setActive, userIsLoggedIn, player]);
+  }, [setDevices, setActiveDevice, userIsLoggedIn, player]);
   const sendDeviceTransferRequest = useCallback(
     (newDevice: string | undefined, play: boolean) => {
       if (newDevice) {
@@ -98,14 +92,6 @@ export const Player = () => {
           .then((r) => {
             if (r.ok) {
               setActiveDevice(newDevice);
-              const active = devices.find((device) => device.id == newDevice);
-              if (active.name === "Spotulism") {
-                console.log('device switch activated player')
-                setActive(true);
-              } else {
-                console.log('device switch deactivated player')
-                setActive(false);
-              }
               setPlayState(play ? "play" : "pause");
             }
           })
@@ -149,7 +135,7 @@ export const Player = () => {
           </option>
         ))}
       </select>
-      {!is_active ? null : (
+      {activeDevice !== thisDeviceId ? null : (
         <div>
           {current_track?.album?.images?.[0]?.url && (
             <Image
