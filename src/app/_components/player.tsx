@@ -5,14 +5,7 @@ import { ChangeEvent, useCallback, useEffect, useState } from "react";
 import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import Script from "next/script";
 import Image from "next/image";
-
-const track = {
-  name: "",
-  album: {
-    images: [{ url: "" }],
-  },
-  artists: [{ name: "" }],
-};
+import { TrackWithAlbum } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 
 const getCookie = (name: string) =>
   decodeURIComponent(
@@ -29,8 +22,8 @@ export const Player = () => {
   );
   const [playState, setPlayState] = useState<"pause" | "play">("pause");
   // from spotify's example at https://github.com/spotify/spotify-web-playback-sdk-example/blob/main/src/WebPlayback.jsx
-  const [player, setPlayer] = useState(undefined);
-  const [current_track, setTrack] = useState(track);
+  const [player, setPlayer] = useState();
+  const [current_track, setTrack] = useState<TrackWithAlbum>();
   const [currentTrackProgress, setCurrentTrackProgress] = useState(0);
   useEffect(() => {
     if (!userIsLoggedIn) return;
@@ -45,7 +38,7 @@ export const Player = () => {
       setPlayer(player);
       player.addListener("ready", ({ device_id }) => {
         console.log("Ready with Device ID", device_id);
-        setThisDeviceId(device_id)
+        setThisDeviceId(device_id);
         setDevices((d) => [...d, { id: device_id, name: "Spotulism" }]);
       });
       player.addListener("not_ready", ({ device_id }) => {
@@ -64,6 +57,13 @@ export const Player = () => {
 
       player.connect();
     };
+    const intervalId = setInterval(async () => {
+      const state = await player?.getCurrentState();
+      if (state) {
+        setCurrentTrackProgress(state.position / state.duration);
+      }
+    }, 1000);
+    return () => clearInterval(intervalId);
   }, [userIsLoggedIn]);
   useEffect(() => {
     if (userIsLoggedIn) {
@@ -135,15 +135,15 @@ export const Player = () => {
           </option>
         ))}
       </select>
-      {activeDevice !== thisDeviceId ? null : (
+      {!activeDevice || activeDevice !== thisDeviceId ? null : (
         <div>
           {current_track?.album?.images?.[0]?.url && (
             <Image
               key="playingTrackArt"
               alt="album_art"
               src={current_track?.album?.images?.[0]?.url}
-              height={250}
-              width={250}
+              width={current_track?.album?.images?.[0]?.width ?? 300}
+              height={current_track?.album?.images?.[0]?.height ?? 300}
             />
           )}
           <div>
