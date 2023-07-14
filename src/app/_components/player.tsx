@@ -59,14 +59,6 @@ export const Player = () => {
         setTrack(state.track_window.current_track);
         setPlayState(state.paused ? "pause" : "play");
         setCurrentTrackProgress(state.position / state.duration);
-
-        player.getCurrentState().then((state) => {
-          if (state) {
-            setActive(true);
-          } else {
-            setActive(false);
-          }
-        });
       });
 
       player.connect();
@@ -82,7 +74,11 @@ export const Player = () => {
           if (active) {
             setActiveDevice(active.id);
             if (active.name == "Spotulism") {
+              console.log('device list activated player')
               setActive(true);
+            } else {
+              console.log('device list deactivated player')
+              setActive(false);
             }
           }
         });
@@ -104,7 +100,11 @@ export const Player = () => {
               setActiveDevice(newDevice);
               const active = devices.find((device) => device.id == newDevice);
               if (active.name === "Spotulism") {
+                console.log('device switch activated player')
                 setActive(true);
+              } else {
+                console.log('device switch deactivated player')
+                setActive(false);
               }
               setPlayState(play ? "play" : "pause");
             }
@@ -120,9 +120,9 @@ export const Player = () => {
     (event: ChangeEvent<HTMLSelectElement>) => {
       const newDevice = event.target.value;
 
-      sendDeviceTransferRequest(newDevice, playState === "play");
+      sendDeviceTransferRequest(newDevice, true);
     },
-    [devices, setActiveDevice, setActiveDeviceQuery, playState]
+    [sendDeviceTransferRequest]
   );
   const onPlayButton = useCallback(() => {
     sendDeviceTransferRequest(activeDevice, playState === "pause");
@@ -149,48 +149,53 @@ export const Player = () => {
           </option>
         ))}
       </select>
-      {current_track?.album?.images?.[0]?.url && (
-        <Image
-          key="playingTrackArt"
-          alt="album_art"
-          src={current_track?.album?.images?.[0]?.url}
-          height={50}
-          width={50}
-        />
+      {!is_active ? null : (
+        <div>
+          {current_track?.album?.images?.[0]?.url && (
+            <Image
+              key="playingTrackArt"
+              alt="album_art"
+              src={current_track?.album?.images?.[0]?.url}
+              height={250}
+              width={250}
+            />
+          )}
+          <div>
+            Now playing: {current_track?.name ?? "unknown track"} by{" "}
+            {current_track?.artists?.map((a) => a.name)?.join(", ") ??
+              "unknown artist"}
+          </div>
+          <div className="bg-black w-100 h-5">
+            <div
+              className="bg-green-600 h-5"
+              style={{ width: currentTrackProgress * 100 + "%" }}
+            ></div>
+          </div>
+          <button
+            className="btn-spotify"
+            onClick={() => {
+              player?.previousTrack();
+            }}
+          >
+            &lt;&lt;
+          </button>
+          <button
+            type="button"
+            className="p-2 border"
+            onClick={() => player?.togglePlay()}
+          >
+            {playState === "pause" ? "|>" : "||"}
+          </button>
+          <button
+            className="btn-spotify"
+            onClick={() => {
+              player?.nextTrack();
+            }}
+          >
+            &gt;&gt;
+          </button>
+        </div>
       )}
-      <div>
-        Now playing: {current_track?.name ?? "unknown track"} by{" "}
-        {current_track?.artists?.map((a) => a.name)?.join(", ")?? "unknown artist"}
-      </div>
-      <div className="bg-black w-100 h-5">
-        <div
-          className="bg-green-600 h-5"
-          style={{ width: (currentTrackProgress*100) + "%" }}
-        ></div>
-      </div>
-      <button
-        className="btn-spotify"
-        onClick={() => {
-          player?.previousTrack();
-        }}
-      >
-        &lt;&lt;
-      </button>
-      <button
-        type="button"
-        className="p-2 border"
-        onClick={() => player?.togglePlay()}
-      >
-        {playState === "pause"? "|>" : "||"}
-      </button>
-      <button
-        className="btn-spotify"
-        onClick={() => {
-          player?.nextTrack();
-        }}
-      >
-        &gt;&gt;
-      </button>
       <Script src="https://sdk.scdn.co/spotify-player.js" async={true} />
     </div>
   );
