@@ -13,10 +13,17 @@ export async function GET() {
   const spotifyApi = getSpotifySdk(userAccessToken);
   try {
     const profile = await spotifyApi.currentUser.profile();
-    const primaryProfileImage = profile.images?.at(-1);
+    const primaryProfileImage = profile.images.reduce(
+      (biggestImage, nextImage) =>
+        biggestImage.width * biggestImage.height <
+        nextImage.width * nextImage.height
+          ? nextImage
+          : biggestImage,
+      { width: 0, height: 0 }
+    );
     const userProfile: UserProfile = {
       displayName: profile.display_name,
-      imageUrl: primaryProfileImage?.url,
+      imageUrl: primaryProfileImage?.url ?? "/default-profile.png",
       spotifyId: profile.id,
       spotifyWebUrl: profile.external_urls.spotify,
       spotifyApiUrl: profile.href,

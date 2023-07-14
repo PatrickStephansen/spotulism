@@ -4,6 +4,7 @@ import { LoginState } from "./_components/login-state";
 import { AppStateProvider } from "./_components/state-provider";
 import { UserBar } from "./_components/user-bar";
 import "./globals.css";
+import { Player } from "./_components/player";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -25,6 +26,7 @@ export default function RootLayout({
           <UserBar isLoggedIn={isUserLoggedIn}>
           </UserBar>
           <div className="main content px-5 py-1">{children}</div>
+          <Player/>
         </AppStateProvider>
       </body>
     </html>

@@ -25,6 +25,7 @@ export const getSpotifySdk = (userToken: AccessToken) =>
   SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID ?? "", userToken, {
     fetch,
     async afterRequest(url, options, response) {
+      if (!response.ok) return;
       try {
         // afterRequest is called synchronously, but since we've already done the request, the cache entry should be available and should be returned immediately
         const potentiallyRenewedToken =
@@ -54,3 +55,7 @@ export const getSpotifySdk = (userToken: AccessToken) =>
       }
     },
   });
+
+export const getSpotifyUserTokenCookie = () => {
+  return JSON.parse(cookies().get("SPOTIFY_USER_TOKEN")?.value ?? "{}");
+};

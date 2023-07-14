@@ -18,8 +18,8 @@ export async function GET(request: NextRequest) {
   form.set("grant_type", "authorization_code");
   form.set(
     "redirect_uri",
-    process.env.NEXT_PUBLIC_LOGIN_CALLBACK_URL ??
-      "No callback URL configured. NEXT_PUBLIC_LOGIN_CALLBACK_URL is missing."
+    process.env.LOGIN_CALLBACK_URL ??
+      "No callback URL configured. LOGIN_CALLBACK_URL is missing."
   );
   // get the token we need to make further API calls
   const tokenResponse = await fetch(
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest) {
         ).toString("base64")}`,
       },
       body: `grant_type=authorization_code&redirect_uri=${
-        process.env.NEXT_PUBLIC_LOGIN_CALLBACK_URL ?? ""
+        process.env.LOGIN_CALLBACK_URL ?? ""
       }&code=${code}`,
     }
   );
@@ -49,7 +49,7 @@ export async function GET(request: NextRequest) {
   cookies().set({
     name: "SPOTIFY_USER_TOKEN",
     value: JSON.stringify(token),
-    httpOnly: true,
+    httpOnly: false,
   });
   redirect("/");
 }

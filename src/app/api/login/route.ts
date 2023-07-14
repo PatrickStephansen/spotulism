@@ -8,10 +8,10 @@ export async function GET() {
   const queryString = qs.stringify({
     response_type: "code",
     client_id: process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID,
-    scope: "streaming",
+    scope: process.env.SPOTIFY_SCOPES,
     redirect_uri:
-      process.env.NEXT_PUBLIC_LOGIN_CALLBACK_URL ??
-      "No callback URL configured. NEXT_PUBLIC_LOGIN_CALLBACK_URL is missing.",
+      process.env.LOGIN_CALLBACK_URL ??
+      "No callback URL configured. LOGIN_CALLBACK_URL is missing.",
     state: antiForgeryToken,
   });
 
