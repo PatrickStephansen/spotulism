@@ -33,6 +33,7 @@ export const Player = () => {
   const [current_track, setTrack] = useState(track);
   const [currentTrackProgress, setCurrentTrackProgress] = useState(0);
   useEffect(() => {
+    if (!userIsLoggedIn) return;
     window.onSpotifyWebPlaybackSDKReady = () => {
       const player = new window.Spotify.Player({
         name: "Spotulism",
@@ -70,7 +71,7 @@ export const Player = () => {
 
       player.connect();
     };
-  }, []);
+  }, [userIsLoggedIn]);
   useEffect(() => {
     if (userIsLoggedIn) {
       fetch("/api/playback/devices")
@@ -180,7 +181,7 @@ export const Player = () => {
         className="p-2 border"
         onClick={() => player?.togglePlay()}
       >
-        ⏯️
+        {playState === "pause"? "|>" : "||"}
       </button>
       <button
         className="btn-spotify"
