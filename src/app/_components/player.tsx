@@ -157,29 +157,34 @@ export const Player = () => {
               style={{ width: currentTrackProgress * 100 + "%" }}
             ></div>
           </div>
-          <button
-            className="btn-spotify"
-            onClick={() => {
-              player?.previousTrack();
-            }}
-          >
-            &lt;&lt;
-          </button>
-          <button
-            type="button"
-            className="p-2 border"
-            onClick={() => player?.togglePlay()}
-          >
-            {playState === "pause" ? "|>" : "||"}
-          </button>
-          <button
-            className="btn-spotify"
-            onClick={() => {
-              player?.nextTrack();
-            }}
-          >
-            &gt;&gt;
-          </button>
+          <div className="flex justify-center">
+            <button
+              className="p-2 border"
+              title="Previous track"
+              onClick={() => {
+                player?.previousTrack();
+              }}
+            >
+              &lt;&lt;
+            </button>
+            <button
+              type="button"
+              className="p-2 border"
+              title={playState === "pause" ? "Play" : "Pause"}
+              onClick={() => player?.togglePlay()}
+            >
+              {playState === "pause" ? "|>" : "||"}
+            </button>
+            <button
+              className="p-2 border"
+              title="Next track"
+              onClick={() => {
+                player?.nextTrack();
+              }}
+            >
+              &gt;&gt;
+            </button>
+          </div>
         </div>
       )}
       <Script src="https://sdk.scdn.co/spotify-player.js" async={true} />
