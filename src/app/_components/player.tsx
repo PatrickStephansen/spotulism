@@ -113,47 +113,50 @@ export const Player = () => {
   const onPlayButton = useCallback(() => {
     sendDeviceTransferRequest(activeDevice, playState === "pause");
   }, [sendDeviceTransferRequest, playState, activeDevice]);
+  const trackText =
+    `${current_track?.name ?? "unknown track"} by 
+  ${current_track?.artists?.map((a) => a.name)?.join(", ")}` ??
+    "unknown artist";
   return (
-    <div className="fixed bottom-0 bg-slate-900 w-100vw">
-      <label htmlFor="playback-device-select" className="mx-2">
-        Playback device
-      </label>
-      <select
-        name="playbackDevice"
-        id="playback-device-select"
-        className="bg-black round border p-2"
-        value={activeDevice}
-        onChange={onDeviceChange}
-        defaultValue={""}
-      >
-        <option key="default" value="" disabled>
-          None active
-        </option>
-        {devices.map((d) => (
-          <option key={d.id} value={d.id}>
-            {d.name}
+    <div className="fixed bottom-0 right-0 bg-slate-900 w-100vw">
+      <div className="flex justify-between items-center">
+        <label htmlFor="playback-device-select" className="mx-2">
+          Playback device
+        </label>
+        <select
+          name="playbackDevice"
+          id="playback-device-select"
+          className="bg-black round border p-2"
+          value={activeDevice}
+          onChange={onDeviceChange}
+        >
+          <option key="default" value="" disabled>
+            None active
           </option>
-        ))}
-      </select>
+          {devices.map((d) => (
+            <option key={d.id} value={d.id}>
+              {d.name}
+            </option>
+          ))}
+        </select>
+      </div>
       {!activeDevice || activeDevice !== thisDeviceId ? null : (
-        <div>
+        <div className="flex flex-col items-center">
           {current_track?.album?.images?.[0]?.url && (
             <Image
               key="playingTrackArt"
               alt="album_art"
               src={current_track?.album?.images?.[0]?.url}
-              width={current_track?.album?.images?.[0]?.width ?? 300}
-              height={current_track?.album?.images?.[0]?.height ?? 300}
+              width={300}
+              height={300}
             />
           )}
-          <div>
-            Now playing: {current_track?.name ?? "unknown track"} by{" "}
-            {current_track?.artists?.map((a) => a.name)?.join(", ") ??
-              "unknown artist"}
-          </div>
-          <div className="bg-black w-100 h-5">
+          <p className="max-w-xs truncate" title="trackText">
+            {trackText}
+          </p>
+          <div className="bg-black w-full h-3">
             <div
-              className="bg-green-600 h-5"
+              className="bg-green-600 h-full"
               style={{ width: currentTrackProgress * 100 + "%" }}
             ></div>
           </div>
