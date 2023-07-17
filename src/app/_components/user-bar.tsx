@@ -30,9 +30,9 @@ export const UserBar = ({ isLoggedIn, children }: PropsWithChildren<Props>) => {
   return (
     <div className="sticky top-0 bg-slate-900">
       <div className="flex items-center justify-between px-5 h-50 min-h-50">
-        <Link  href="/">Spotulism</Link>
+        <Link href="/">Spotulism</Link>
+        {children}
         <div className="flex items-center gap-3 justify-end">
-          {children}
           {userIsLoggedIn ? (
             <Link href="/profile" className="flex items-center">
               {user?.displayName ?? "User Loading..."}
@@ -45,7 +45,7 @@ export const UserBar = ({ isLoggedIn, children }: PropsWithChildren<Props>) => {
               />
             </Link>
           ) : (
-            <LoginButton/>
+            <LoginButton />
           )}
         </div>
       </div>

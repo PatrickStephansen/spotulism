@@ -70,7 +70,7 @@ const trackColumns = [
     cell: (info) => (
       <Image
         alt="track_image"
-        src={info.getValue()?.url}
+        src={info.getValue()?.url ?? "default-album.png"}
         width={info.getValue()?.width ?? 50}
         height={info.getValue()?.height ?? 50}
       />
@@ -137,7 +137,7 @@ const artistColumns = [
     cell: (info) => (
       <Image
         alt="artist_image"
-        src={info.getValue()?.url}
+        src={info.getValue()?.url ?? "default-profile.png"}
         width={info.getValue()?.width ?? 50}
         height={info.getValue()?.height ?? 50}
       />
@@ -200,7 +200,7 @@ const albumColumns = [
     cell: (info) => (
       <Image
         alt="album_image"
-        src={info.getValue()?.url}
+        src={info.getValue()?.url ?? "default-album.png"}
         width={info.getValue()?.width ?? 50}
         height={info.getValue()?.height ?? 50}
       />

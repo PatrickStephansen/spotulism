@@ -5,6 +5,7 @@ import { AppStateProvider } from "./_components/state-provider";
 import { TokenRefresher } from "./_components/token-refresher";
 import { UserBar } from "./_components/user-bar";
 import "./globals.css";
+import Link from "next/link";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,7 +28,9 @@ export default function RootLayout({
             intervalMs={900000}
             refreshEndpoint="/api/refresh-token"
           />
-          <UserBar isLoggedIn={isUserLoggedIn}></UserBar>
+          <UserBar isLoggedIn={isUserLoggedIn}>
+            <Link href="/queue">Queue</Link>
+          </UserBar>
           <div className="main content px-5 py-1">{children}</div>
           <Player />
         </AppStateProvider>
