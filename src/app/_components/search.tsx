@@ -274,8 +274,8 @@ export const Search = ({}: Props) => {
         <div>Loading...</div>
       ) : !searchResults.isSearchComplete ? null : (
         <>
-          <h2 className="text-xl m-2">Results</h2>
-          <h3 className="text-lg m-2" key="tracks-header">
+          <h2 className="text-xl">Results</h2>
+          <h3 className="text-lg" key="tracks-header">
             Tracks
           </h3>
           <ExpandableTable
@@ -285,7 +285,7 @@ export const Search = ({}: Props) => {
             getRowCanExpand={() => true}
             renderSubComponent={DebugTableRow}
           />
-          <h3 className="text-lg m-2" key="artists-header">
+          <h3 className="text-lg" key="artists-header">
             Artists
           </h3>
           <ExpandableTable
@@ -295,7 +295,7 @@ export const Search = ({}: Props) => {
             getRowCanExpand={() => true}
             renderSubComponent={DebugTableRow}
           />
-          <h3 className="text-lg m-2" key="albums-header">
+          <h3 className="text-lg" key="albums-header">
             Albums
           </h3>
           <ExpandableTable
@@ -305,7 +305,7 @@ export const Search = ({}: Props) => {
             getRowCanExpand={() => true}
             renderSubComponent={DebugTableRow}
           />
-          <h3 className="text-lg m-2" key="playlists-header">
+          <h3 className="text-lg" key="playlists-header">
             Playlists
           </h3>
           <ExpandableTable

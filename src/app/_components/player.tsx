@@ -6,6 +6,7 @@ import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import Script from "next/script";
 import Image from "next/image";
 import { TrackWithAlbum } from "@spotify/web-api-ts-sdk/dist/mjs/types";
+import { msToDisplayDuration } from "../_lib/unit-conversion";
 
 const getCookie = (name: string) =>
   decodeURIComponent(
@@ -23,8 +24,8 @@ export const Player = () => {
   const [playState, setPlayState] = useState<"pause" | "play">("pause");
   // from spotify's example at https://github.com/spotify/spotify-web-playback-sdk-example/blob/main/src/WebPlayback.jsx
   const [player, setPlayer] = useState();
+  const [playerState, setPlayerState] = useState();
   const [current_track, setTrack] = useState<TrackWithAlbum>();
-  const [currentTrackProgress, setCurrentTrackProgress] = useState(0);
   useEffect(() => {
     if (!userIsLoggedIn) return;
     window.onSpotifyWebPlaybackSDKReady = () => {
@@ -52,18 +53,11 @@ export const Player = () => {
 
         setTrack(state.track_window.current_track);
         setPlayState(state.paused ? "pause" : "play");
-        setCurrentTrackProgress(state.position / state.duration);
+        setPlayerState(state);
       });
 
       player.connect();
     };
-    const intervalId = setInterval(async () => {
-      const state = await player?.getCurrentState();
-      if (state) {
-        setCurrentTrackProgress(state.position / state.duration);
-      }
-    }, 1000);
-    return () => clearInterval(intervalId);
   }, [userIsLoggedIn]);
   useEffect(() => {
     if (userIsLoggedIn) {
@@ -78,6 +72,15 @@ export const Player = () => {
         });
     }
   }, [setDevices, setActiveDevice, userIsLoggedIn, player]);
+  useEffect(() => {
+    const intervalId = setInterval(async () => {
+      const state = await player?.getCurrentState();
+      if (state) {
+        setPlayerState(state);
+      }
+    }, 1000);
+    return () => clearInterval(intervalId);
+  }, [player]);
   const sendDeviceTransferRequest = useCallback(
     (newDevice: string | undefined, play: boolean) => {
       if (newDevice) {
@@ -151,42 +154,52 @@ export const Player = () => {
               height={300}
             />
           )}
-          <p className="max-w-xs truncate" title="trackText">
+          <p className="max-w-xs truncate" title={trackText}>
             {trackText}
           </p>
           <div className="bg-black w-full h-3">
             <div
               className="bg-green-600 h-full"
-              style={{ width: currentTrackProgress * 100 + "%" }}
+              style={{
+                width:
+                  ((playerState?.position ?? 0) /
+                    (playerState?.duration ?? 1)) *
+                    100 +
+                  "%",
+              }}
             ></div>
           </div>
-          <div className="flex justify-center">
-            <button
-              className="p-2 border"
-              title="Previous track"
-              onClick={() => {
-                player?.previousTrack();
-              }}
-            >
-              &lt;&lt;
-            </button>
-            <button
-              type="button"
-              className="p-2 border"
-              title={playState === "pause" ? "Play" : "Pause"}
-              onClick={() => player?.togglePlay()}
-            >
-              {playState === "pause" ? "|>" : "||"}
-            </button>
-            <button
-              className="p-2 border"
-              title="Next track"
-              onClick={() => {
-                player?.nextTrack();
-              }}
-            >
-              &gt;&gt;
-            </button>
+          <div className="flex justify-evenly items-center gap-2">
+            <p className="font-mono">{msToDisplayDuration(playerState?.position)}</p>
+            <div className="">
+              <button
+                className="p-2 border"
+                title="Previous track"
+                onClick={() => {
+                  player?.previousTrack();
+                }}
+              >
+                &lt;&lt;
+              </button>
+              <button
+                type="button"
+                className="p-2 border"
+                title={playState === "pause" ? "Play" : "Pause"}
+                onClick={() => player?.togglePlay()}
+              >
+                {playState === "pause" ? "|>" : "||"}
+              </button>
+              <button
+                className="p-2 border"
+                title="Next track"
+                onClick={() => {
+                  player?.nextTrack();
+                }}
+              >
+                &gt;&gt;
+              </button>
+            </div>
+            <p className="font-mono">{msToDisplayDuration(playerState?.duration)}</p>
           </div>
         </div>
       )}

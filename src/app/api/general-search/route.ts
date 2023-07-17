@@ -1,23 +1,13 @@
 import { getSpotifySdk } from "@/app/_lib/spotify-sdk";
+import { msToDisplayDuration } from "@/app/_lib/unit-conversion";
 import { SearchMatch } from "@/app/_types/search";
 import {
   ItemTypes,
   TrackWithAlbum,
   Image,
 } from "@spotify/web-api-ts-sdk/dist/mjs/types";
-import { intervalToDuration } from "date-fns";
 import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-
-const msToDisplayDuration = (ms: number) => {
-  const duration = intervalToDuration({
-    start: new Date(0),
-    end: new Date(ms),
-  });
-  return `${duration.hours?.toString(10).padStart(2, "0")}:${duration.minutes
-    ?.toString(10)
-    .padStart(2, "0")}:${duration.seconds?.toString(10).padStart(2, "0")}`;
-};
 
 const getSmallestImage = (images: Image[] | null) => {
   if (!images?.length) return null;
