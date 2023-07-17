@@ -3,7 +3,7 @@ import { AccessToken } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 import { cookies } from "next/headers";
 
 // copied from sdk internals: AccessTokenHelpers class
-const refreshToken = async (clientId: string, refreshToken: string) => {
+export const refreshToken = async (clientId: string, refreshToken: string) => {
   const params = new URLSearchParams();
   params.append("client_id", clientId);
   params.append("grant_type", "refresh_token");
