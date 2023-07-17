@@ -52,6 +52,7 @@ export async function GET(request: NextRequest) {
         trackNumber: t.track_number,
         disc: t.disc_number,
         id: t.id,
+        uri: t.uri,
         // docs say it should have the album
         album: {
           name: (t as TrackWithAlbum)?.album?.name,
@@ -66,6 +67,7 @@ export async function GET(request: NextRequest) {
       })),
       artists: searchResults.artists.items.map((a) => ({
         name: a.name,
+        uri: a.uri,
         previewImage: getSmallestImage(a.images),
         genres: a.genres,
         followersCount: a.followers?.total ?? "unknown",
@@ -88,6 +90,7 @@ export async function GET(request: NextRequest) {
         group: a.album_group,
         tracksCount: a.total_tracks,
         id: a.id,
+        uri: a.uri,
       })),
       playlists: searchResults.playlists.items.map((p) => ({
         name: p.name,
@@ -104,6 +107,7 @@ export async function GET(request: NextRequest) {
         previewImage: getSmallestImage(p.images),
         type: p.type,
         colour: p.primary_color,
+        uri: p.uri,
       })),
       isSearchComplete: true,
       isSearching: false,

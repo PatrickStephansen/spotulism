@@ -11,6 +11,13 @@ import { ExpandableTable } from "./expandable-table";
 
 interface Props {}
 
+const playMedia = (uri: string) => {
+  fetch("/api/playback/context", {
+    method: "PUT",
+    body: JSON.stringify({ contextUri: uri }),
+  });
+};
+
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
 const artistColumnHelper = createColumnHelper<SearchMatch["artists"][0]>();
 const albumColumnHelper = createColumnHelper<SearchMatch["albums"][0]>();
@@ -31,6 +38,16 @@ const trackColumns = [
     header: () => null,
     size: 30,
     id: "expander",
+  }),
+  trackColumnHelper.accessor("uri", {
+    cell: ({ getValue }) => (
+      <button type="button" onClick={() => playMedia(getValue())}>
+        {"|>"}
+      </button>
+    ),
+    header: () => null,
+    size: 30,
+    id: "play",
   }),
   trackColumnHelper.accessor("name", {
     cell: (info) => info.getValue(),
@@ -77,12 +94,12 @@ const trackColumns = [
   trackColumnHelper.accessor("duration", {
     header: () => <span>Duration</span>,
     size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>
+    cell: (info) => <div className="text-right">{info.getValue()}</div>,
   }),
   trackColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
     size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>
+    cell: (info) => <div className="text-right">{info.getValue()}</div>,
   }),
 ];
 
@@ -102,6 +119,16 @@ const artistColumns = [
     header: () => null,
     size: 30,
     id: "expander",
+  }),
+  artistColumnHelper.accessor("uri", {
+    cell: ({ getValue }) => (
+      <button type="button" onClick={() => playMedia(getValue())}>
+        {"|>"}
+      </button>
+    ),
+    header: () => null,
+    size: 30,
+    id: "play",
   }),
   artistColumnHelper.accessor((row) => row.previewImage, {
     header: () => null,
@@ -123,12 +150,14 @@ const artistColumns = [
   artistColumnHelper.accessor("followersCount", {
     header: () => <span>Followers</span>,
     size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()?.toLocaleString()}</div>
+    cell: (info) => (
+      <div className="text-right">{info.getValue()?.toLocaleString()}</div>
+    ),
   }),
   artistColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
     size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>
+    cell: (info) => <div className="text-right">{info.getValue()}</div>,
   }),
   artistColumnHelper.accessor((row) => row.genres?.join(", ") ?? "", {
     id: "genres",
@@ -153,6 +182,16 @@ const albumColumns = [
     header: () => null,
     size: 30,
     id: "expander",
+  }),
+  albumColumnHelper.accessor("uri", {
+    cell: ({ getValue }) => (
+      <button type="button" onClick={() => playMedia(getValue())}>
+        {"|>"}
+      </button>
+    ),
+    header: () => null,
+    size: 30,
+    id: "play",
   }),
   albumColumnHelper.accessor((row) => row.previewImage, {
     id: "albumArt",
@@ -182,7 +221,7 @@ const albumColumns = [
   albumColumnHelper.accessor("popularityScore", {
     header: () => <span>Popularity</span>,
     size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>
+    cell: (info) => <div className="text-right">{info.getValue()}</div>,
   }),
   albumColumnHelper.accessor("releaseDate", {
     header: () => <span>Release Date</span>,
@@ -195,7 +234,7 @@ const albumColumns = [
   albumColumnHelper.accessor("tracksCount", {
     header: () => <span># tracks</span>,
     size: 50,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>
+    cell: (info) => <div className="text-right">{info.getValue()}</div>,
   }),
 ];
 
@@ -215,6 +254,16 @@ const playlistColumns = [
     header: () => null,
     size: 30,
     id: "expander",
+  }),
+  playlistColumnHelper.accessor("uri", {
+    cell: ({ getValue }) => (
+      <button type="button" onClick={() => playMedia(getValue())}>
+        {"|>"}
+      </button>
+    ),
+    header: () => null,
+    size: 30,
+    id: "play",
   }),
   albumColumnHelper.accessor((row) => row.previewImage, {
     id: "playlistArt",
@@ -246,7 +295,9 @@ const playlistColumns = [
   playlistColumnHelper.accessor("followersCount", {
     header: () => <span>Followers</span>,
     size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()?.toLocaleString()}</div>
+    cell: (info) => (
+      <div className="text-right">{info.getValue()?.toLocaleString()}</div>
+    ),
   }),
 ];
 
