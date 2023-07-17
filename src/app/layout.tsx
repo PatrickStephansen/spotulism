@@ -25,7 +25,7 @@ export default function RootLayout({
         <AppStateProvider>
           <TokenRefresher
             intervalMs={900000}
-            refreshEndpoint="/api/user-profile"
+            refreshEndpoint="/api/refresh-token"
           />
           <UserBar isLoggedIn={isUserLoggedIn}></UserBar>
           <div className="main content px-5 py-1">{children}</div>
