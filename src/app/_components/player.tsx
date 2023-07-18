@@ -99,7 +99,11 @@ export const Player = () => {
   }, [player]);
 
   useEffect(() => {
-    updateQueue();
+    // wait a bit because the player needs to confirm with the server that it's started the next track
+    // that is not an event we can hook into directly
+    setTimeout(() => {
+      updateQueue();
+    }, 3000);
   }, [current_track?.uri]);
 
   const sendDeviceTransferRequest = useCallback(
@@ -161,7 +165,7 @@ export const Player = () => {
         <select
           name="playbackDevice"
           id="playback-device-select"
-          className="bg-black round border p-2"
+          className="bg-black rounded border p-2"
           value={activeDevice}
           onChange={onDeviceChange}
         >
