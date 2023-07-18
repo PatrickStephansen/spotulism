@@ -2,8 +2,10 @@
 
 import { MinusIcon, PlusIcon } from "@heroicons/react/24/solid";
 import { createColumnHelper } from "@tanstack/react-table";
+import { useAtomValue } from "jotai";
+import { useHydrateAtoms } from "jotai/utils";
 import Image from "next/image";
-import { useState } from "react";
+import { playerQueue } from "../_state/playback";
 import { PlayableTrack } from "../_types/track";
 import { DebugTableRow } from "./debug-table-row";
 import { ExpandableTable } from "./expandable-table";
@@ -67,7 +69,8 @@ const trackColumns = [
 ];
 export const PlayerQueue = ({ serverQueue }: Props) => {
   // keeping this up to date is going to require some coordination with the player component
-  const [queue, setQueue] = useState(serverQueue);
+  useHydrateAtoms([[playerQueue, serverQueue]]);
+  const queue = useAtomValue(playerQueue);
   return (
     <>
       <h2 className="text-xl">Queue</h2>

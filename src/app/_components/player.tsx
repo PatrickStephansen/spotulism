@@ -1,13 +1,19 @@
 "use client";
 
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
-import { PlayIcon, BackwardIcon, ForwardIcon, PauseIcon } from "@heroicons/react/20/solid";
+import {
+  PlayIcon,
+  BackwardIcon,
+  ForwardIcon,
+  PauseIcon,
+} from "@heroicons/react/20/solid";
 import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import Script from "next/script";
 import Image from "next/image";
 import { TrackWithAlbum } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 import { msToDisplayDuration } from "../_lib/unit-conversion";
+import { updateQueueFromServer } from "../_state/playback";
 
 const iconHeight = 18;
 
@@ -18,6 +24,7 @@ const getCookie = (name: string) =>
 
 export const Player = () => {
   const userIsLoggedIn = useAtomValue(userHasLoggedIn);
+  const [_, updateQueue] = useAtom(updateQueueFromServer);
   const [devices, setDevices] = useState<any[]>([]);
   const [thisDeviceId, setThisDeviceId] = useState<string>();
   const [activeDevice, setActiveDevice] = useState<string>();
@@ -84,6 +91,11 @@ export const Player = () => {
     }, 1000);
     return () => clearInterval(intervalId);
   }, [player]);
+
+  useEffect(() => {
+    updateQueue();
+  }, [current_track?.uri]);
+
   const sendDeviceTransferRequest = useCallback(
     (newDevice: string | undefined, play: boolean) => {
       if (newDevice) {
@@ -99,6 +111,7 @@ export const Player = () => {
             if (r.ok) {
               setActiveDevice(newDevice);
               setPlayState(play ? "play" : "pause");
+              updateQueue();
             }
           })
           .catch((reason) => {
@@ -173,7 +186,9 @@ export const Player = () => {
             ></div>
           </div>
           <div className="flex justify-evenly items-center gap-2">
-            <p className="font-mono">{msToDisplayDuration(playerState?.position)}</p>
+            <p className="font-mono">
+              {msToDisplayDuration(playerState?.position)}
+            </p>
             <div className="">
               <button
                 className="p-2 border rounded"
@@ -182,7 +197,7 @@ export const Player = () => {
                   player?.previousTrack();
                 }}
               >
-                <BackwardIcon height={iconHeight}/>
+                <BackwardIcon height={iconHeight} />
               </button>
               <button
                 type="button"
@@ -190,7 +205,11 @@ export const Player = () => {
                 title={playState === "pause" ? "Play" : "Pause"}
                 onClick={() => player?.togglePlay()}
               >
-                {playState === "pause" ? <PlayIcon height={iconHeight}/> : <PauseIcon height={iconHeight}/>}
+                {playState === "pause" ? (
+                  <PlayIcon height={iconHeight} />
+                ) : (
+                  <PauseIcon height={iconHeight} />
+                )}
               </button>
               <button
                 className="p-2 border rounded"
@@ -199,10 +218,12 @@ export const Player = () => {
                   player?.nextTrack();
                 }}
               >
-                <ForwardIcon height={iconHeight}/>
+                <ForwardIcon height={iconHeight} />
               </button>
             </div>
-            <p className="font-mono">{msToDisplayDuration(playerState?.duration)}</p>
+            <p className="font-mono">
+              {msToDisplayDuration(playerState?.duration)}
+            </p>
           </div>
         </div>
       )}

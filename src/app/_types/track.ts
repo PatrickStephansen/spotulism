@@ -1,7 +1,7 @@
 import { Artist } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 import { msToDisplayDuration } from "../_lib/unit-conversion";
 
-// abstracts over Spotify tracks and episodes
+// abstracts over Spotify tracks and episodes used in queue
 export interface PlayableTrack {
   uri: string;
   name: string;
