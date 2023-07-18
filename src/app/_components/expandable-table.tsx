@@ -13,6 +13,7 @@ interface TableProps<TData> {
   columns: ColumnDef<TData>[];
   renderSubComponent: (props: { row: Row<TData> }) => React.ReactElement;
   getRowCanExpand: (row: Row<TData>) => boolean;
+  state: object
 }
 
 export function ExpandableTable<TData>({
@@ -20,6 +21,7 @@ export function ExpandableTable<TData>({
   columns,
   renderSubComponent,
   getRowCanExpand,
+  state = {},
 }: TableProps<TData>) {
   const table = useReactTable<TData>({
     data,
@@ -28,6 +30,8 @@ export function ExpandableTable<TData>({
     columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
+    enableHiding: true,
+    state
   });
   return (
     <div className="p-2 overflow-x-auto">

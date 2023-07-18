@@ -82,7 +82,7 @@ const trackColumns = [
     cell: (info) => (
       <Image
         alt="track_image"
-        src={info.getValue()?.url ?? "default-album.png"}
+        src={info.getValue()?.url ?? "/default-album.png"}
         width={info.getValue()?.width ?? 50}
         height={info.getValue()?.height ?? 50}
       />
@@ -228,7 +228,7 @@ const albumColumns = [
     cell: (info) => (
       <Image
         alt="album_image"
-        src={info.getValue()?.url ?? "default-album.png"}
+        src={info.getValue()?.url ?? "/default-album.png"}
         width={info.getValue()?.width ?? 50}
         height={info.getValue()?.height ?? 50}
       />

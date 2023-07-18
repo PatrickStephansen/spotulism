@@ -8,13 +8,12 @@ export default async function Queue() {
   const items = queue.currently_playing
     ? [
         trackOrEpisodeToPlayableTrack(queue.currently_playing),
-        queue.queue.map(trackOrEpisodeToPlayableTrack),
+        ...queue.queue.map(trackOrEpisodeToPlayableTrack),
       ]
     : [];
-  console.log("rendering queue", items);
   return (
     <>
-      <PlayerQueue serverQueue={items} limitItems={0} />
+      <PlayerQueue serverQueue={items} />
     </>
   );
 }
