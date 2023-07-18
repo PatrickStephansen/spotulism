@@ -26,7 +26,7 @@ export async function GET() {
   if (newToken) {
     cookies().set({
       name: "SPOTIFY_USER_TOKEN",
-      value: JSON.stringify(newToken),
+      value: JSON.stringify({refresh_token: token.refresh_token, ...newToken}),
       httpOnly: false,
       sameSite: "strict",
     });
