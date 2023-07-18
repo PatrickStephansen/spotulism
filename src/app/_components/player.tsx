@@ -134,7 +134,7 @@ export const Player = () => {
           id="playback-device-select"
           className="bg-black round border p-2"
           value={activeDevice}
-          onInput={onDeviceChange}
+          onChange={onDeviceChange}
         >
           <option key="default" value="">
             Select device
