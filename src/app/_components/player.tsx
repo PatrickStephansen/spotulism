@@ -134,10 +134,10 @@ export const Player = () => {
           id="playback-device-select"
           className="bg-black round border p-2"
           value={activeDevice}
-          onChange={onDeviceChange}
+          onInput={onDeviceChange}
         >
-          <option key="default" value="" disabled>
-            None active
+          <option key="default" value="">
+            Select device
           </option>
           {devices.map((d) => (
             <option key={d.id} value={d.id}>
