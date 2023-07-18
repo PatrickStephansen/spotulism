@@ -29,8 +29,8 @@ export const UserBar = ({ isLoggedIn, children }: PropsWithChildren<Props>) => {
   }, [userIsLoggedIn, user, setUser]);
 
   const logout = useCallback(() => {
-    fetch("api/logout", { method: "POST" }).then(() => (window.location = "/"));
-  }, [setUserIsLoggedIn]);
+    fetch("api/logout", { method: "POST" }).then(() => (window.location.href = '/'));
+  }, []);
 
   return (
     <div className="sticky top-0 bg-slate-900">
