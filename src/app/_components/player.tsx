@@ -2,11 +2,14 @@
 
 import { useAtomValue } from "jotai";
 import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { PlayIcon, BackwardIcon, ForwardIcon, PauseIcon } from "@heroicons/react/20/solid";
 import { userHasLoggedIn } from "../_state/user-has-logged-in";
 import Script from "next/script";
 import Image from "next/image";
 import { TrackWithAlbum } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 import { msToDisplayDuration } from "../_lib/unit-conversion";
+
+const iconHeight = 18;
 
 const getCookie = (name: string) =>
   decodeURIComponent(
@@ -121,7 +124,7 @@ export const Player = () => {
   ${current_track?.artists?.map((a) => a.name)?.join(", ")}` ??
     "unknown artist";
   return (
-    <div className="fixed bottom-0 right-0 bg-slate-900 w-100vw">
+    <div className="fixed bottom-0 right-3 bg-slate-900 w-100vw">
       <div className="flex justify-between items-center">
         <label htmlFor="playback-device-select" className="mx-2">
           Playback device
@@ -173,30 +176,30 @@ export const Player = () => {
             <p className="font-mono">{msToDisplayDuration(playerState?.position)}</p>
             <div className="">
               <button
-                className="p-2 border"
+                className="p-2 border rounded"
                 title="Previous track"
                 onClick={() => {
                   player?.previousTrack();
                 }}
               >
-                &lt;&lt;
+                <BackwardIcon height={iconHeight}/>
               </button>
               <button
                 type="button"
-                className="p-2 border"
+                className="p-2 border rounded"
                 title={playState === "pause" ? "Play" : "Pause"}
                 onClick={() => player?.togglePlay()}
               >
-                {playState === "pause" ? "|>" : "||"}
+                {playState === "pause" ? <PlayIcon height={iconHeight}/> : <PauseIcon height={iconHeight}/>}
               </button>
               <button
-                className="p-2 border"
+                className="p-2 border rounded"
                 title="Next track"
                 onClick={() => {
                   player?.nextTrack();
                 }}
               >
-                &gt;&gt;
+                <ForwardIcon height={iconHeight}/>
               </button>
             </div>
             <p className="font-mono">{msToDisplayDuration(playerState?.duration)}</p>

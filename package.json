@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
     "@spotify/web-api-ts-sdk": "^0.0.21",
     "@tanstack/react-table": "^8.9.3",
     "@types/node": "20.3.1",

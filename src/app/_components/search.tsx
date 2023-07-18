@@ -1,6 +1,7 @@
 "use client";
 
 import { createColumnHelper } from "@tanstack/react-table";
+import { PlayIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
 import { useAtom, useAtomValue } from "jotai";
 import Image from "next/image";
 import { ChangeEvent } from "react";
@@ -11,6 +12,7 @@ import { ExpandableTable } from "./expandable-table";
 
 interface Props {}
 
+const iconHeight = 24;
 const playMedia = (uri: string) => {
   fetch("/api/playback/context", {
     method: "PUT",
@@ -28,26 +30,36 @@ const trackColumns = [
       row.getCanExpand() ? (
         <button
           onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer"
+          className="cursor-pointer block"
         >
-          {row.getIsExpanded() ? "👇" : "👉"}
+          {row.getIsExpanded() ? (
+            <MinusIcon className="hover:text-green-600" height={iconHeight} />
+          ) : (
+            <PlusIcon className="hover:text-green-600" height={iconHeight} />
+          )}
         </button>
       ) : (
         "🔵"
       ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "expander",
+    meta: { title: "expand" },
   }),
   trackColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
-      <button type="button" onClick={() => playMedia(getValue())}>
-        {"|>"}
+      <button
+        className="block"
+        type="button"
+        onClick={() => playMedia(getValue())}
+      >
+        <PlayIcon className="hover:text-green-600" height={iconHeight} />
       </button>
     ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "play",
+    meta: { title: "play" },
   }),
   trackColumnHelper.accessor("name", {
     cell: (info) => info.getValue(),
@@ -109,25 +121,33 @@ const artistColumns = [
       row.getCanExpand() ? (
         <button
           onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer"
+          className="cursor-pointer block"
         >
-          {row.getIsExpanded() ? "👇" : "👉"}
+          {row.getIsExpanded() ? (
+            <MinusIcon className="hover:text-green-600" height={iconHeight} />
+          ) : (
+            <PlusIcon className="hover:text-green-600" height={iconHeight} />
+          )}
         </button>
       ) : (
         "🔵"
       ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "expander",
   }),
   artistColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
-      <button type="button" onClick={() => playMedia(getValue())}>
-        {"|>"}
+      <button
+        className="block"
+        type="button"
+        onClick={() => playMedia(getValue())}
+      >
+        <PlayIcon className="hover:text-green-600" height={iconHeight} />
       </button>
     ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "play",
   }),
   artistColumnHelper.accessor((row) => row.previewImage, {
@@ -137,7 +157,7 @@ const artistColumns = [
     cell: (info) => (
       <Image
         alt="artist_image"
-        src={info.getValue()?.url ?? "default-profile.png"}
+        src={info.getValue()?.url ?? "/default-profile.png"}
         width={info.getValue()?.width ?? 50}
         height={info.getValue()?.height ?? 50}
       />
@@ -172,25 +192,33 @@ const albumColumns = [
       row.getCanExpand() ? (
         <button
           onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer"
+          className="cursor-pointer block"
         >
-          {row.getIsExpanded() ? "👇" : "👉"}
+          {row.getIsExpanded() ? (
+            <MinusIcon className="hover:text-green-600" height={iconHeight} />
+          ) : (
+            <PlusIcon className="hover:text-green-600" height={iconHeight} />
+          )}
         </button>
       ) : (
         "🔵"
       ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "expander",
   }),
   albumColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
-      <button type="button" onClick={() => playMedia(getValue())}>
-        {"|>"}
+      <button
+        className="block"
+        type="button"
+        onClick={() => playMedia(getValue())}
+      >
+        <PlayIcon className="hover:text-green-600" height={iconHeight} />
       </button>
     ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "play",
   }),
   albumColumnHelper.accessor((row) => row.previewImage, {
@@ -244,25 +272,33 @@ const playlistColumns = [
       row.getCanExpand() ? (
         <button
           onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer"
+          className="cursor-pointer block"
         >
-          {row.getIsExpanded() ? "👇" : "👉"}
+          {row.getIsExpanded() ? (
+            <MinusIcon className="hover:text-green-600" height={iconHeight} />
+          ) : (
+            <PlusIcon className="hover:text-green-600" height={iconHeight} />
+          )}
         </button>
       ) : (
         "🔵"
       ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "expander",
   }),
   playlistColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
-      <button type="button" onClick={() => playMedia(getValue())}>
-        {"|>"}
+      <button
+        className="block"
+        type="button"
+        onClick={() => playMedia(getValue())}
+      >
+        <PlayIcon className="hover:text-green-600" height={iconHeight} />
       </button>
     ),
     header: () => null,
-    size: 30,
+    size: iconHeight,
     id: "play",
   }),
   albumColumnHelper.accessor((row) => row.previewImage, {
