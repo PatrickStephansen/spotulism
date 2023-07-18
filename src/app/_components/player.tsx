@@ -1,7 +1,13 @@
 "use client";
 
 import { useAtom, useAtomValue } from "jotai";
-import { ChangeEvent, useCallback, useEffect, useState } from "react";
+import {
+  ChangeEvent,
+  useCallback,
+  useEffect,
+  useState,
+  MouseEvent,
+} from "react";
 import {
   PlayIcon,
   BackwardIcon,
@@ -132,6 +138,16 @@ export const Player = () => {
   const onPlayButton = useCallback(() => {
     sendDeviceTransferRequest(activeDevice, playState === "pause");
   }, [sendDeviceTransferRequest, playState, activeDevice]);
+  const onTrackSeek = useCallback(
+    (event: MouseEvent<HTMLDivElement>) => {
+      const totalWidth = event.nativeEvent?.target?.clientWidth ?? 300;
+      const clickLocation = event.nativeEvent.offsetX;
+      if (current_track.duration_ms) {
+        player.seek(current_track.duration_ms * (clickLocation / totalWidth));
+      }
+    },
+    [current_track, player]
+  );
   const trackText =
     `${current_track?.name ?? "unknown track"} by 
   ${current_track?.artists?.map((a) => a.name)?.join(", ")}` ??
@@ -173,9 +189,9 @@ export const Player = () => {
           <p className="max-w-xs truncate" title={trackText}>
             {trackText}
           </p>
-          <div className="bg-black w-full h-3">
+          <div className="bg-black w-full h-3" onClick={onTrackSeek}>
             <div
-              className="bg-green-600 h-full"
+              className="bg-green-600 h-full pointer-events-none"
               style={{
                 width:
                   ((playerState?.position ?? 0) /

@@ -12,9 +12,9 @@ export async function PUT(request: NextRequest) {
   console.log("try play media", body.contextUri);
   const sdk = getSpotifySdk(getSpotifyUserTokenCookie());
   if (body.contextUri.startsWith("spotify:track")) {
-    return sdk.player.startResumePlayback(body.deviceId, undefined, [
+    return await sdk.player.startResumePlayback(body.deviceId, undefined, [
       body.contextUri,
     ]);
   }
-  return sdk.player.startResumePlayback(body.deviceId, body.contextUri);
+  return await sdk.player.startResumePlayback(body.deviceId, body.contextUri);
 }
