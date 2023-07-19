@@ -44,7 +44,7 @@ const trackColumns = [
     header: () => null,
     size: iconHeight,
     id: "expander",
-    meta: { title: "expand" },
+    meta: { title: "Expand details" },
   }),
   trackColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
@@ -59,7 +59,7 @@ const trackColumns = [
     header: () => null,
     size: iconHeight,
     id: "play",
-    meta: { title: "play" },
+    meta: { title: "Play immediately, discarding your queue" },
   }),
   trackColumnHelper.accessor("name", {
     cell: (info) => info.getValue(),
@@ -135,6 +135,7 @@ const artistColumns = [
     header: () => null,
     size: iconHeight,
     id: "expander",
+    meta: { title: "Expand details" },
   }),
   artistColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
@@ -149,6 +150,7 @@ const artistColumns = [
     header: () => null,
     size: iconHeight,
     id: "play",
+    meta: { title: "Play immediately, discarding your queue" },
   }),
   artistColumnHelper.accessor((row) => row.previewImage, {
     header: () => null,
@@ -206,6 +208,7 @@ const albumColumns = [
     header: () => null,
     size: iconHeight,
     id: "expander",
+    meta: { title: "Expand details" },
   }),
   albumColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
@@ -220,6 +223,7 @@ const albumColumns = [
     header: () => null,
     size: iconHeight,
     id: "play",
+    meta: { title: "Play immediately, discarding your queue" },
   }),
   albumColumnHelper.accessor((row) => row.previewImage, {
     id: "albumArt",
@@ -286,6 +290,7 @@ const playlistColumns = [
     header: () => null,
     size: iconHeight,
     id: "expander",
+    meta: { title: "Expand details" },
   }),
   playlistColumnHelper.accessor("uri", {
     cell: ({ getValue }) => (
@@ -300,6 +305,7 @@ const playlistColumns = [
     header: () => null,
     size: iconHeight,
     id: "play",
+    meta: { title: "Play immediately, discarding your queue" },
   }),
   albumColumnHelper.accessor((row) => row.previewImage, {
     id: "playlistArt",

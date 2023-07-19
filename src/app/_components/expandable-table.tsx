@@ -13,7 +13,7 @@ interface TableProps<TData> {
   columns: ColumnDef<TData>[];
   renderSubComponent: (props: { row: Row<TData> }) => React.ReactElement;
   getRowCanExpand: (row: Row<TData>) => boolean;
-  state: object
+  state: object;
 }
 
 export function ExpandableTable<TData>({
@@ -31,7 +31,7 @@ export function ExpandableTable<TData>({
     getCoreRowModel: getCoreRowModel(),
     getExpandedRowModel: getExpandedRowModel(),
     enableHiding: true,
-    state
+    state,
   });
   return (
     <div className="p-2 overflow-x-auto">
@@ -79,9 +79,10 @@ export function ExpandableTable<TData>({
                           className="line-clamp-1"
                           {...{
                             title:
-                              typeof cell.getValue() == "string"
+                              cell.column.columnDef.meta?.title ??
+                              (typeof cell.getValue() == "string"
                                 ? (cell.getValue() as string)
-                                : undefined,
+                                : undefined),
                           }}
                         >
                           {flexRender(
