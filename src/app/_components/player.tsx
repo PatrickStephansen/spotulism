@@ -20,6 +20,7 @@ import Image from "next/image";
 import { TrackWithAlbum } from "@spotify/web-api-ts-sdk/dist/mjs/types";
 import { msToDisplayDuration } from "../_lib/unit-conversion";
 import { updateQueueFromServer } from "../_state/playback";
+import { Slider } from "./slider";
 
 const iconHeight = 18;
 
@@ -42,6 +43,7 @@ export const Player = () => {
   const [player, setPlayer] = useState();
   const [playerState, setPlayerState] = useState();
   const [current_track, setTrack] = useState<TrackWithAlbum>();
+  const [targetMs, setTargetMs] = useState<number>();
   useEffect(() => {
     if (!userIsLoggedIn) return;
     window.onSpotifyWebPlaybackSDKReady = () => {
@@ -142,20 +144,22 @@ export const Player = () => {
   const onPlayButton = useCallback(() => {
     sendDeviceTransferRequest(activeDevice, playState === "pause");
   }, [sendDeviceTransferRequest, playState, activeDevice]);
-  const onTrackSeek = useCallback(
-    (event: MouseEvent<HTMLDivElement>) => {
-      const totalWidth = event.nativeEvent?.target?.clientWidth ?? 300;
-      const clickLocation = event.nativeEvent.offsetX;
-      if (current_track.duration_ms) {
-        player.seek(current_track.duration_ms * (clickLocation / totalWidth));
-      }
-    },
-    [current_track, player]
-  );
+
   const trackText =
     `${current_track?.name ?? "unknown track"} by 
   ${current_track?.artists?.map((a) => a.name)?.join(", ")}` ??
     "unknown artist";
+  const onSeek = useCallback(
+    (value: number) => {
+      player.seek(value);
+      setTargetMs(undefined);
+    },
+    [player, setTargetMs]
+  );
+  const onSeekPreview = useCallback(
+    (value: number): void => setTargetMs(value),
+    [setTargetMs]
+  );
   return (
     <div className="fixed bottom-0 right-3 bg-slate-900 w-100vw">
       <div className="flex justify-between items-center">
@@ -193,21 +197,17 @@ export const Player = () => {
           <p className="max-w-xs truncate" title={trackText}>
             {trackText}
           </p>
-          <div className="bg-black w-full h-3" onClick={onTrackSeek}>
-            <div
-              className="bg-green-600 h-full pointer-events-none"
-              style={{
-                width:
-                  ((playerState?.position ?? 0) /
-                    (playerState?.duration ?? 1)) *
-                    100 +
-                  "%",
-              }}
-            ></div>
-          </div>
+          <Slider
+            min={0}
+            max={playerState?.duration ?? 1}
+            value={playerState?.position}
+            className="w-full mb-2"
+            onChange={onSeek}
+            onDrag={onSeekPreview}
+          />
           <div className="flex justify-evenly items-center gap-2">
             <p className="font-mono">
-              {msToDisplayDuration(playerState?.position)}
+              {msToDisplayDuration(targetMs ?? playerState?.position)}
             </p>
             <div className="">
               <button
