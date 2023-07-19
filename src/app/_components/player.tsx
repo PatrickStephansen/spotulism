@@ -73,7 +73,6 @@ export const Player = () => {
         setTrack(state.track_window.current_track);
         setPlayState(state.paused ? "pause" : "play");
         setPlayerState(state);
-        console.log("player state", state);
       });
 
       player.connect();
