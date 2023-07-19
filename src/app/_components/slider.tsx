@@ -28,9 +28,13 @@ export const Slider = ({
     event.stopPropagation();
     event.target.setPointerCapture(event.pointerId);
     setGrabbingState(true);
+    onPointerDrag(event, true)
   };
-  const onPointerDrag = (event: PointerEvent<HTMLDivElement>) => {
-    if (!isGrabbing) return;
+  const onPointerDrag = (
+    event: PointerEvent<HTMLDivElement>,
+    overrideGrabbing = false
+  ) => {
+    if (!(overrideGrabbing || isGrabbing)) return;
     event.preventDefault();
     event.stopPropagation();
     const targetWidth = event.nativeEvent.target?.clientWidth ?? 1;
@@ -54,7 +58,7 @@ export const Slider = ({
       );
     }
   };
-  const progressPercent = (100 * (value - min)) / (max - min);
+  const progressPercent = (100 * ((value ?? min) - min)) / (max - min);
   const handlePercent =
     dragToValue === undefined
       ? progressPercent

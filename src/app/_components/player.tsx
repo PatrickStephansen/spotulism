@@ -44,6 +44,7 @@ export const Player = () => {
   const [playerState, setPlayerState] = useState();
   const [current_track, setTrack] = useState<TrackWithAlbum>();
   const [targetMs, setTargetMs] = useState<number>();
+  const [playerVolume, setPlayerVolume] = useState(0.3);
   useEffect(() => {
     if (!userIsLoggedIn) return;
     window.onSpotifyWebPlaybackSDKReady = () => {
@@ -51,7 +52,7 @@ export const Player = () => {
         name: "Spotulism",
         getOAuthToken: (cb) =>
           cb(JSON.parse(getCookie("SPOTIFY_USER_TOKEN")).access_token),
-        volume: 0.5,
+        volume: playerVolume,
       });
 
       setPlayer(player);
@@ -72,6 +73,7 @@ export const Player = () => {
         setTrack(state.track_window.current_track);
         setPlayState(state.paused ? "pause" : "play");
         setPlayerState(state);
+        console.log("player state", state);
       });
 
       player.connect();
@@ -160,6 +162,13 @@ export const Player = () => {
     (value: number): void => setTargetMs(value),
     [setTargetMs]
   );
+  const onVolumeChange = useCallback(
+    (volume: number) => {
+      player?.setVolume(volume);
+      setPlayerVolume(volume);
+    },
+    [setPlayerVolume, player]
+  );
   return (
     <div className="fixed bottom-0 right-3 bg-slate-900">
       <div className="flex justify-between items-center my-2">
@@ -245,6 +254,16 @@ export const Player = () => {
               {msToDisplayDuration(playerState?.duration)}
             </p>
           </div>
+          <label>
+            Volume{" "}
+            <Slider
+              min={0}
+              max={1}
+              value={playerVolume}
+              className="w-[100px] inline-block"
+              onDrag={onVolumeChange}
+            />
+          </label>
         </div>
       )}
       <Script src="https://sdk.scdn.co/spotify-player.js" async={true} />
