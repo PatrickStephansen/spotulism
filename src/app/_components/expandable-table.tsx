@@ -39,7 +39,7 @@ export function ExpandableTable<TData>({
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
-              {headerGroup.headers.map((header) => {
+              {headerGroup?.headers.map((header) => {
                 return (
                   <th
                     key={header.id}
