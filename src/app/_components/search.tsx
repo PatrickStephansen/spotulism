@@ -1,14 +1,21 @@
 "use client";
 
 import { createColumnHelper } from "@tanstack/react-table";
-import { PlayIcon, PlusIcon, MinusIcon } from "@heroicons/react/24/solid";
+import {
+  PlayIcon,
+  PlusIcon,
+  MinusIcon,
+  BarsArrowDownIcon,
+} from "@heroicons/react/24/solid";
 import { useAtom, useAtomValue } from "jotai";
 import Image from "next/image";
-import { ChangeEvent } from "react";
+import { ChangeEvent, useMemo } from "react";
 import { doSearch, searchMatches } from "../_state/current-search";
 import { SearchMatch } from "../_types/search";
 import { DebugTableRow } from "./debug-table-row";
 import { ExpandableTable } from "./expandable-table";
+import { QueueState } from "../_types/queue";
+import { playerQueue } from "../_state/playback";
 
 interface Props {}
 
@@ -20,100 +27,24 @@ const playMedia = (uri: string) => {
   });
 };
 
+const enqueueMedia = (uri: string, setQueue: (queue: QueueState) => void) => {
+  fetch("/api/playback/queue", {
+    method: "POST",
+    body: JSON.stringify({ uri }),
+  })
+    .then(async (res) => {
+      if (!res.ok) {
+        throw await res.json();
+      }
+      return res.json();
+    })
+    .then((updatedQueue) => setQueue(updatedQueue));
+};
+
 const trackColumnHelper = createColumnHelper<SearchMatch["tracks"][0]>();
 const artistColumnHelper = createColumnHelper<SearchMatch["artists"][0]>();
 const albumColumnHelper = createColumnHelper<SearchMatch["albums"][0]>();
 const playlistColumnHelper = createColumnHelper<SearchMatch["playlists"][0]>();
-const trackColumns = [
-  trackColumnHelper.display({
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <button
-          onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer block"
-        >
-          {row.getIsExpanded() ? (
-            <MinusIcon className="hover:text-green-600" height={iconHeight} />
-          ) : (
-            <PlusIcon className="hover:text-green-600" height={iconHeight} />
-          )}
-        </button>
-      ) : (
-        "🔵"
-      ),
-    header: () => null,
-    size: iconHeight,
-    id: "expander",
-    meta: { title: "Expand details" },
-  }),
-  trackColumnHelper.accessor("uri", {
-    cell: ({ getValue }) => (
-      <button
-        className="block"
-        type="button"
-        onClick={() => playMedia(getValue())}
-      >
-        <PlayIcon className="hover:text-green-600" height={iconHeight} />
-      </button>
-    ),
-    header: () => null,
-    size: iconHeight,
-    id: "play",
-    meta: { title: "Play immediately, discarding your queue" },
-  }),
-  trackColumnHelper.accessor("name", {
-    cell: (info) => info.getValue(),
-    header: () => <span>Name</span>,
-    size: 250,
-  }),
-  trackColumnHelper.accessor(
-    (row) => row.artists.map((a: any) => a.name).join(", "),
-    {
-      id: "artists",
-      cell: (info) => info.getValue(),
-      header: () => <span>Artists</span>,
-      size: 250,
-    }
-  ),
-  trackColumnHelper.accessor((row) => row.album?.previewImage, {
-    header: () => null,
-    id: "trackImage",
-    size: 56,
-    cell: (info) => (
-      <Image
-        alt="track_image"
-        src={info.getValue()?.url ?? "/default-album.png"}
-        width={info.getValue()?.width ?? 50}
-        height={info.getValue()?.height ?? 50}
-      />
-    ),
-  }),
-  trackColumnHelper.accessor((row) => row.album.name, {
-    id: "album",
-    cell: (info) => info.getValue(),
-    header: () => <span>Album</span>,
-    size: 250,
-  }),
-  trackColumnHelper.accessor(
-    (row) => row.album?.releaseDate ?? "unknown release date",
-    {
-      id: "releaseDate",
-      cell: (info) => info.getValue(),
-      header: () => <span>Release Date</span>,
-      size: 100,
-    }
-  ),
-  trackColumnHelper.accessor("duration", {
-    header: () => <span>Duration</span>,
-    size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>,
-  }),
-  trackColumnHelper.accessor("popularityScore", {
-    header: () => <span>Popularity</span>,
-    size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>,
-  }),
-];
 
 const artistColumns = [
   artistColumnHelper.display({
@@ -346,6 +277,125 @@ const playlistColumns = [
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
   const searchResults = useAtomValue(searchMatches);
+  const [queue, setQueue] = useAtom(playerQueue);
+
+  const trackColumns = useMemo(
+    () => [
+      trackColumnHelper.display({
+        cell: ({ row }) =>
+          row.getCanExpand() ? (
+            <button
+              onClick={row.getToggleExpandedHandler()}
+              className="cursor-pointer block"
+            >
+              {row.getIsExpanded() ? (
+                <MinusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              ) : (
+                <PlusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              )}
+            </button>
+          ) : (
+            "🔵"
+          ),
+        header: () => null,
+        size: iconHeight,
+        id: "expander",
+        meta: { title: "Expand details" },
+      }),
+      trackColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => playMedia(getValue())}
+          >
+            <PlayIcon className="hover:text-green-600" height={iconHeight} />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "play",
+        meta: { title: "Play immediately, discarding your queue" },
+      }),
+      trackColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => enqueueMedia(getValue(), setQueue)}
+          >
+            <BarsArrowDownIcon
+              className="hover:text-green-600"
+              height={iconHeight}
+            />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "enqueue",
+        meta: { title: "Add to queue" },
+      }),
+      trackColumnHelper.accessor("name", {
+        cell: (info) => info.getValue(),
+        header: () => <span>Name</span>,
+        size: 250,
+      }),
+      trackColumnHelper.accessor(
+        (row) => row.artists.map((a: any) => a.name).join(", "),
+        {
+          id: "artists",
+          cell: (info) => info.getValue(),
+          header: () => <span>Artists</span>,
+          size: 250,
+        }
+      ),
+      trackColumnHelper.accessor((row) => row.album?.previewImage, {
+        header: () => null,
+        id: "trackImage",
+        size: 56,
+        cell: (info) => (
+          <Image
+            alt="track_image"
+            src={info.getValue()?.url ?? "/default-album.png"}
+            width={info.getValue()?.width ?? 50}
+            height={info.getValue()?.height ?? 50}
+          />
+        ),
+      }),
+      trackColumnHelper.accessor((row) => row.album.name, {
+        id: "album",
+        cell: (info) => info.getValue(),
+        header: () => <span>Album</span>,
+        size: 250,
+      }),
+      trackColumnHelper.accessor(
+        (row) => row.album?.releaseDate ?? "unknown release date",
+        {
+          id: "releaseDate",
+          cell: (info) => info.getValue(),
+          header: () => <span>Release Date</span>,
+          size: 100,
+        }
+      ),
+      trackColumnHelper.accessor("duration", {
+        header: () => <span>Duration</span>,
+        size: 75,
+        cell: (info) => <div className="text-right">{info.getValue()}</div>,
+      }),
+      trackColumnHelper.accessor("popularityScore", {
+        header: () => <span>Popularity</span>,
+        size: 75,
+        cell: (info) => <div className="text-right">{info.getValue()}</div>,
+      }),
+    ],
+    [setQueue]
+  );
 
   const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
     setSearchParams({ types: searchParams.types, term: e.target.value });
