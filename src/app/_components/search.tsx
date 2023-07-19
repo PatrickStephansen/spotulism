@@ -9,7 +9,7 @@ import {
 } from "@heroicons/react/24/solid";
 import { useAtom, useAtomValue } from "jotai";
 import Image from "next/image";
-import { ChangeEvent, useMemo } from "react";
+import { ChangeEvent, useCallback, useMemo } from "react";
 import { doSearch, searchMatches } from "../_state/current-search";
 import { SearchMatch } from "../_types/search";
 import { DebugTableRow } from "./debug-table-row";
@@ -46,238 +46,12 @@ const artistColumnHelper = createColumnHelper<SearchMatch["artists"][0]>();
 const albumColumnHelper = createColumnHelper<SearchMatch["albums"][0]>();
 const playlistColumnHelper = createColumnHelper<SearchMatch["playlists"][0]>();
 
-const artistColumns = [
-  artistColumnHelper.display({
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <button
-          onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer block"
-        >
-          {row.getIsExpanded() ? (
-            <MinusIcon className="hover:text-green-600" height={iconHeight} />
-          ) : (
-            <PlusIcon className="hover:text-green-600" height={iconHeight} />
-          )}
-        </button>
-      ) : (
-        "🔵"
-      ),
-    header: () => null,
-    size: iconHeight,
-    id: "expander",
-    meta: { title: "Expand details" },
-  }),
-  artistColumnHelper.accessor("uri", {
-    cell: ({ getValue }) => (
-      <button
-        className="block"
-        type="button"
-        onClick={() => playMedia(getValue())}
-      >
-        <PlayIcon className="hover:text-green-600" height={iconHeight} />
-      </button>
-    ),
-    header: () => null,
-    size: iconHeight,
-    id: "play",
-    meta: { title: "Play immediately, discarding your queue" },
-  }),
-  artistColumnHelper.accessor((row) => row.previewImage, {
-    header: () => null,
-    id: "artistImage",
-    size: 56,
-    cell: (info) => (
-      <Image
-        alt="artist_image"
-        src={info.getValue()?.url ?? "/default-profile.png"}
-        width={info.getValue()?.width ?? 50}
-        height={info.getValue()?.height ?? 50}
-      />
-    ),
-  }),
-  artistColumnHelper.accessor("name", {
-    header: () => <span>Name</span>,
-    size: 250,
-  }),
-  artistColumnHelper.accessor("followersCount", {
-    header: () => <span>Followers</span>,
-    size: 75,
-    cell: (info) => (
-      <div className="text-right">{info.getValue()?.toLocaleString()}</div>
-    ),
-  }),
-  artistColumnHelper.accessor("popularityScore", {
-    header: () => <span>Popularity</span>,
-    size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>,
-  }),
-  artistColumnHelper.accessor((row) => row.genres?.join(", ") ?? "", {
-    id: "genres",
-    header: () => <span>Genres</span>,
-    size: 250,
-  }),
-];
-
-const albumColumns = [
-  albumColumnHelper.display({
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <button
-          onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer block"
-        >
-          {row.getIsExpanded() ? (
-            <MinusIcon className="hover:text-green-600" height={iconHeight} />
-          ) : (
-            <PlusIcon className="hover:text-green-600" height={iconHeight} />
-          )}
-        </button>
-      ) : (
-        "🔵"
-      ),
-    header: () => null,
-    size: iconHeight,
-    id: "expander",
-    meta: { title: "Expand details" },
-  }),
-  albumColumnHelper.accessor("uri", {
-    cell: ({ getValue }) => (
-      <button
-        className="block"
-        type="button"
-        onClick={() => playMedia(getValue())}
-      >
-        <PlayIcon className="hover:text-green-600" height={iconHeight} />
-      </button>
-    ),
-    header: () => null,
-    size: iconHeight,
-    id: "play",
-    meta: { title: "Play immediately, discarding your queue" },
-  }),
-  albumColumnHelper.accessor((row) => row.previewImage, {
-    id: "albumArt",
-    header: () => null,
-    size: 56,
-    cell: (info) => (
-      <Image
-        alt="album_image"
-        src={info.getValue()?.url ?? "/default-album.png"}
-        width={info.getValue()?.width ?? 50}
-        height={info.getValue()?.height ?? 50}
-      />
-    ),
-  }),
-  albumColumnHelper.accessor("name", {
-    header: () => <span>Name</span>,
-    size: 250,
-  }),
-  albumColumnHelper.accessor(
-    (row) => row.artists?.map((a) => a.name)?.join(", "),
-    {
-      header: () => <span>Artists</span>,
-      id: "artists",
-      size: 250,
-    }
-  ),
-  albumColumnHelper.accessor("popularityScore", {
-    header: () => <span>Popularity</span>,
-    size: 75,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>,
-  }),
-  albumColumnHelper.accessor("releaseDate", {
-    header: () => <span>Release Date</span>,
-    size: 75,
-  }),
-  albumColumnHelper.accessor("type", {
-    header: () => <span>Release Type</span>,
-    size: 75,
-  }),
-  albumColumnHelper.accessor("tracksCount", {
-    header: () => <span># tracks</span>,
-    size: 50,
-    cell: (info) => <div className="text-right">{info.getValue()}</div>,
-  }),
-];
-
-const playlistColumns = [
-  playlistColumnHelper.display({
-    cell: ({ row }) =>
-      row.getCanExpand() ? (
-        <button
-          onClick={row.getToggleExpandedHandler()}
-          className="cursor-pointer block"
-        >
-          {row.getIsExpanded() ? (
-            <MinusIcon className="hover:text-green-600" height={iconHeight} />
-          ) : (
-            <PlusIcon className="hover:text-green-600" height={iconHeight} />
-          )}
-        </button>
-      ) : (
-        "🔵"
-      ),
-    header: () => null,
-    size: iconHeight,
-    id: "expander",
-    meta: { title: "Expand details" },
-  }),
-  playlistColumnHelper.accessor("uri", {
-    cell: ({ getValue }) => (
-      <button
-        className="block"
-        type="button"
-        onClick={() => playMedia(getValue())}
-      >
-        <PlayIcon className="hover:text-green-600" height={iconHeight} />
-      </button>
-    ),
-    header: () => null,
-    size: iconHeight,
-    id: "play",
-    meta: { title: "Play immediately, discarding your queue" },
-  }),
-  albumColumnHelper.accessor((row) => row.previewImage, {
-    id: "playlistArt",
-    header: () => null,
-    size: 56,
-    cell: (info) => (
-      <Image
-        alt="playlist_image"
-        src={info.getValue()?.url}
-        width={info.getValue()?.width ?? 50}
-        height={info.getValue()?.height ?? 50}
-      />
-    ),
-  }),
-  playlistColumnHelper.accessor("name", {
-    header: () => <span>Name</span>,
-    size: 250,
-  }),
-  playlistColumnHelper.accessor("description", {
-    header: () => <span className="text-ellipsis max-w-30">Description</span>,
-    cell: (info) => <span title={info.getValue()}>{info.getValue()}</span>,
-    size: 250,
-  }),
-  playlistColumnHelper.accessor((row) => row.creator.name, {
-    header: () => <span>Creator</span>,
-    id: "creatorName",
-    size: 250,
-  }),
-  playlistColumnHelper.accessor("followersCount", {
-    header: () => <span>Followers</span>,
-    size: 75,
-    cell: (info) => (
-      <div className="text-right">{info.getValue()?.toLocaleString()}</div>
-    ),
-  }),
-];
+const playTitle = "Play immediately";
 
 export const Search = ({}: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
   const searchResults = useAtomValue(searchMatches);
-  const [queue, setQueue] = useAtom(playerQueue);
+  const [_queue, setQueue] = useAtom(playerQueue);
 
   const trackColumns = useMemo(
     () => [
@@ -321,7 +95,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "play",
-        meta: { title: "Play immediately, discarding your queue" },
+        meta: { title: playTitle },
       }),
       trackColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -397,9 +171,320 @@ export const Search = ({}: Props) => {
     [setQueue]
   );
 
-  const handleSearchInput = (e: ChangeEvent<HTMLInputElement>) => {
-    setSearchParams({ types: searchParams.types, term: e.target.value });
-  };
+  const albumColumns = useMemo(
+    () => [
+      albumColumnHelper.display({
+        cell: ({ row }) =>
+          row.getCanExpand() ? (
+            <button
+              onClick={row.getToggleExpandedHandler()}
+              className="cursor-pointer block"
+            >
+              {row.getIsExpanded() ? (
+                <MinusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              ) : (
+                <PlusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              )}
+            </button>
+          ) : (
+            "🔵"
+          ),
+        header: () => null,
+        size: iconHeight,
+        id: "expander",
+        meta: { title: "Expand details" },
+      }),
+      albumColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => playMedia(getValue())}
+          >
+            <PlayIcon className="hover:text-green-600" height={iconHeight} />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "play",
+        meta: { title: playTitle },
+      }),
+      albumColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => enqueueMedia(getValue(), setQueue)}
+          >
+            <BarsArrowDownIcon
+              className="hover:text-green-600"
+              height={iconHeight}
+            />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "enqueue",
+        meta: { title: "Add to queue" },
+      }),
+      albumColumnHelper.accessor((row) => row.previewImage, {
+        id: "albumArt",
+        header: () => null,
+        size: 56,
+        cell: (info) => (
+          <Image
+            alt="album_image"
+            src={info.getValue()?.url ?? "/default-album.png"}
+            width={info.getValue()?.width ?? 50}
+            height={info.getValue()?.height ?? 50}
+          />
+        ),
+      }),
+      albumColumnHelper.accessor("name", {
+        header: () => <span>Name</span>,
+        size: 250,
+      }),
+      albumColumnHelper.accessor(
+        (row) => row.artists?.map((a) => a.name)?.join(", "),
+        {
+          header: () => <span>Artists</span>,
+          id: "artists",
+          size: 250,
+        }
+      ),
+      albumColumnHelper.accessor("popularityScore", {
+        header: () => <span>Popularity</span>,
+        size: 75,
+        cell: (info) => <div className="text-right">{info.getValue()}</div>,
+      }),
+      albumColumnHelper.accessor("releaseDate", {
+        header: () => <span>Release Date</span>,
+        size: 75,
+      }),
+      albumColumnHelper.accessor("type", {
+        header: () => <span>Release Type</span>,
+        size: 75,
+      }),
+      albumColumnHelper.accessor("tracksCount", {
+        header: () => <span># tracks</span>,
+        size: 50,
+        cell: (info) => <div className="text-right">{info.getValue()}</div>,
+      }),
+    ],
+    [setQueue]
+  );
+
+  const artistColumns = useMemo(
+    () => [
+      artistColumnHelper.display({
+        cell: ({ row }) =>
+          row.getCanExpand() ? (
+            <button
+              onClick={row.getToggleExpandedHandler()}
+              className="cursor-pointer block"
+            >
+              {row.getIsExpanded() ? (
+                <MinusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              ) : (
+                <PlusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              )}
+            </button>
+          ) : (
+            "🔵"
+          ),
+        header: () => null,
+        size: iconHeight,
+        id: "expander",
+        meta: { title: "Expand details" },
+      }),
+      artistColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => playMedia(getValue())}
+          >
+            <PlayIcon className="hover:text-green-600" height={iconHeight} />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "play",
+        meta: { title: playTitle },
+      }),
+      artistColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => enqueueMedia(getValue(), setQueue)}
+          >
+            <BarsArrowDownIcon
+              className="hover:text-green-600"
+              height={iconHeight}
+            />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "queue",
+        meta: { title: "Add top 10 tracks to queue" },
+      }),
+      artistColumnHelper.accessor((row) => row.previewImage, {
+        header: () => null,
+        id: "artistImage",
+        size: 56,
+        cell: (info) => (
+          <Image
+            alt="artist_image"
+            src={info.getValue()?.url ?? "/default-profile.png"}
+            width={info.getValue()?.width ?? 50}
+            height={info.getValue()?.height ?? 50}
+          />
+        ),
+      }),
+      artistColumnHelper.accessor("name", {
+        header: () => <span>Name</span>,
+        size: 250,
+      }),
+      artistColumnHelper.accessor("followersCount", {
+        header: () => <span>Followers</span>,
+        size: 75,
+        cell: (info) => (
+          <div className="text-right">{info.getValue()?.toLocaleString()}</div>
+        ),
+      }),
+      artistColumnHelper.accessor("popularityScore", {
+        header: () => <span>Popularity</span>,
+        size: 75,
+        cell: (info) => <div className="text-right">{info.getValue()}</div>,
+      }),
+      artistColumnHelper.accessor((row) => row.genres?.join(", ") ?? "", {
+        id: "genres",
+        header: () => <span>Genres</span>,
+        size: 250,
+      }),
+    ],
+    [setQueue]
+  );
+
+  const playlistColumns = useMemo(
+    () => [
+      playlistColumnHelper.display({
+        cell: ({ row }) =>
+          row.getCanExpand() ? (
+            <button
+              onClick={row.getToggleExpandedHandler()}
+              className="cursor-pointer block"
+            >
+              {row.getIsExpanded() ? (
+                <MinusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              ) : (
+                <PlusIcon
+                  className="hover:text-green-600"
+                  height={iconHeight}
+                />
+              )}
+            </button>
+          ) : (
+            "🔵"
+          ),
+        header: () => null,
+        size: iconHeight,
+        id: "expander",
+        meta: { title: "Expand details" },
+      }),
+      playlistColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => playMedia(getValue())}
+          >
+            <PlayIcon className="hover:text-green-600" height={iconHeight} />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "play",
+        meta: { title: playTitle },
+      }),
+      playlistColumnHelper.accessor("uri", {
+        cell: ({ getValue }) => (
+          <button
+            className="block"
+            type="button"
+            onClick={() => enqueueMedia(getValue(), setQueue)}
+          >
+            <BarsArrowDownIcon className="hover:text-green-600" height={iconHeight} />
+          </button>
+        ),
+        header: () => null,
+        size: iconHeight,
+        id: "queue",
+        meta: { title: "Add top 10 tracks to queue" },
+      }),
+      albumColumnHelper.accessor((row) => row.previewImage, {
+        id: "playlistArt",
+        header: () => null,
+        size: 56,
+        cell: (info) => (
+          <Image
+            alt="playlist_image"
+            src={info.getValue()?.url}
+            width={info.getValue()?.width ?? 50}
+            height={info.getValue()?.height ?? 50}
+          />
+        ),
+      }),
+      playlistColumnHelper.accessor("name", {
+        header: () => <span>Name</span>,
+        size: 250,
+      }),
+      playlistColumnHelper.accessor("description", {
+        header: () => (
+          <span className="text-ellipsis max-w-30">Description</span>
+        ),
+        cell: (info) => <span title={info.getValue()}>{info.getValue()}</span>,
+        size: 250,
+      }),
+      playlistColumnHelper.accessor((row) => row.creator.name, {
+        header: () => <span>Creator</span>,
+        id: "creatorName",
+        size: 250,
+      }),
+      playlistColumnHelper.accessor("followersCount", {
+        header: () => <span>Followers</span>,
+        size: 75,
+        cell: (info) => (
+          <div className="text-right">{info.getValue()?.toLocaleString()}</div>
+        ),
+      }),
+    ],
+    [setQueue]
+  );
+
+  const handleSearchInput = useCallback(
+    (e: ChangeEvent<HTMLInputElement>) => {
+      setSearchParams({ types: searchParams.types, term: e.target.value });
+    },
+    [setSearchParams]
+  );
 
   return (
     <>

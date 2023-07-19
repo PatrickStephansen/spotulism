@@ -17,7 +17,7 @@ export const getQueueState = async (): Promise<QueueState> => {
   if (!context) {
     return { items };
   }
-  const contextId = context.uri.split(":").at(-1);
+  const contextId = context.uri.split(":").at(-1)!;
   const name =
     context.type === "album"
       ? await sdk.albums
@@ -31,7 +31,9 @@ export const getQueueState = async (): Promise<QueueState> => {
       : context.type === "playlist"
       ? await sdk.playlists
           .getPlaylist(contextId)
-          .then((playlist) => `${playlist.name} by ${playlist.owner.display_name}`)
+          .then(
+            (playlist) => `${playlist.name} by ${playlist.owner.display_name}`
+          )
       : context.type === "artist"
       ? await sdk.artists.get(contextId).then((artist) => artist.name)
       : context.type === "show"
