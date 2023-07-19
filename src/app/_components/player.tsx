@@ -161,8 +161,8 @@ export const Player = () => {
     [setTargetMs]
   );
   return (
-    <div className="fixed bottom-0 right-3 bg-slate-900 w-100vw">
-      <div className="flex justify-between items-center">
+    <div className="fixed bottom-0 right-3 bg-slate-900">
+      <div className="flex justify-between items-center my-2">
         <label htmlFor="playback-device-select" className="mx-2">
           Playback device
         </label>
@@ -201,7 +201,7 @@ export const Player = () => {
             min={0}
             max={playerState?.duration ?? 1}
             value={playerState?.position}
-            className="w-full mb-2"
+            className="w-[300px] mb-2"
             onChange={onSeek}
             onDrag={onSeekPreview}
           />
