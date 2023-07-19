@@ -1,12 +1,12 @@
 import { atom } from "jotai";
-import { PlayableTrack } from "../_types/track";
+import { QueueState } from "../_types/queue";
 
-export const playerQueue = atom<PlayableTrack[]>([]);
+export const playerQueue = atom<QueueState>({items:[]});
 
 export const updateQueueFromServer = atom(null, async (_get, set) => {
   const response = await fetch("/api/playback/queue");
   if (response.ok) {
-    const queueItems = await response.json();
-    set(playerQueue, queueItems);
+    const queueState = await response.json();
+    set(playerQueue, queueState);
   }
 });

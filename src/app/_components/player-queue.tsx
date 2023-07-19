@@ -9,9 +9,10 @@ import { playerQueue } from "../_state/playback";
 import { PlayableTrack } from "../_types/track";
 import { DebugTableRow } from "./debug-table-row";
 import { ExpandableTable } from "./expandable-table";
+import { QueueState } from "../_types/queue";
 
 interface Props {
-  serverQueue: PlayableTrack[];
+  serverQueue: QueueState;
 }
 const iconHeight = 24;
 const trackColumnHelper = createColumnHelper<PlayableTrack>();
@@ -74,8 +75,9 @@ export const PlayerQueue = ({ serverQueue }: Props) => {
   return (
     <>
       <h2 className="text-xl">Queue</h2>
+      {queue.context? <p>Playing from {queue.context.name}</p>: null}
       <ExpandableTable
-        data={queue}
+        data={queue.items}
         columns={trackColumns}
         state={{ columnVisibility: { uri: false } }}
         renderSubComponent={DebugTableRow}

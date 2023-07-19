@@ -1,19 +1,11 @@
 import { PlayerQueue } from "../_components/player-queue";
-import { getSpotifySdk, getSpotifyUserTokenCookie } from "../_lib/spotify-sdk";
-import { trackOrEpisodeToPlayableTrack } from "../_types/track";
+import { getQueueState } from "../_lib/queue";
 
 export default async function Queue() {
-  const sdk = getSpotifySdk(getSpotifyUserTokenCookie());
-  const queue = await sdk.player.getUsersQueue();
-  const items = queue.currently_playing
-    ? [
-        trackOrEpisodeToPlayableTrack(queue.currently_playing),
-        ...queue.queue.map(trackOrEpisodeToPlayableTrack),
-      ]
-    : [];
+  const queue = await getQueueState();
   return (
     <>
-      <PlayerQueue serverQueue={items} />
+      <PlayerQueue serverQueue={queue} />
     </>
   );
 }
