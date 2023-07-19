@@ -108,28 +108,30 @@ export const Player = () => {
 
   const sendDeviceTransferRequest = useCallback(
     (newDevice: string | undefined, play: boolean) => {
-      if (newDevice) {
-        activeDeviceQuery.abort("new query in progress");
-        const newAbortController = new AbortController();
-        setActiveDeviceQuery(newAbortController);
-        return fetch("/api/playback/devices/active", {
-          method: "PUT",
-          signal: newAbortController.signal,
-          body: JSON.stringify({ shouldPlay: play, activeDeviceId: newDevice }),
+      const previousDevice = activeDevice;
+      setActiveDevice(newDevice);
+      activeDeviceQuery.abort("new query in progress");
+      const newAbortController = new AbortController();
+      setActiveDeviceQuery(newAbortController);
+      return fetch("/api/playback/devices/active", {
+        method: "PUT",
+        signal: newAbortController.signal,
+        body: JSON.stringify({ shouldPlay: play, activeDeviceId: newDevice }),
+      })
+        .then((r) => {
+          if (r.ok) {
+            setActiveDevice(newDevice);
+            setPlayState(play ? "play" : "pause");
+            updateQueue();
+          } else {
+            setActiveDevice(previousDevice);
+          }
         })
-          .then((r) => {
-            if (r.ok) {
-              setActiveDevice(newDevice);
-              setPlayState(play ? "play" : "pause");
-              updateQueue();
-            }
-          })
-          .catch((reason) => {
-            if (reason !== "new query in progress") throw reason;
-          });
-      }
+        .catch((reason) => {
+          if (reason !== "new query in progress") throw reason;
+        });
     },
-    [devices, setActiveDevice, setActiveDeviceQuery, setPlayState]
+    [devices, activeDevice, setActiveDevice, setActiveDeviceQuery, setPlayState]
   );
   const onDeviceChange = useCallback(
     (event: ChangeEvent<HTMLSelectElement>) => {
