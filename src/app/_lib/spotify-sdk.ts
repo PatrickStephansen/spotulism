@@ -22,7 +22,7 @@ export const refreshToken = async (clientId: string, refreshToken: string) => {
 };
 
 export const getSpotifySdk = (userToken: AccessToken) =>
-  SpotifyApi.withAccessToken(process.env.SPOTIFY_CLIENT_ID ?? "", userToken, {
+  SpotifyApi.withAccessToken(process.env.NEXT_PUBLIC_SPOTIFY_CLIENT_ID ?? "", userToken, {
     fetch,
     async afterRequest(url, options, response) {
       if (!response.ok) return;
