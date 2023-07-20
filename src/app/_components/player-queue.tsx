@@ -36,6 +36,7 @@ const trackColumns = [
     header: () => null,
     size: iconHeight,
     id: "expander",
+    meta: {isBorderless: true}
   }),
   trackColumnHelper.accessor("uri", {}),
   trackColumnHelper.accessor("imageUrl", {
@@ -44,6 +45,7 @@ const trackColumns = [
       <Image alt="track_art" src={getValue()} width={50} height={50} />
     ),
     size: 56,
+    meta: {isBorderless: true}
   }),
   trackColumnHelper.accessor("name", {
     header: () => <span>Name</span>,

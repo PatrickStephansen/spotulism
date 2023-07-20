@@ -16,6 +16,13 @@ interface TableProps<TData> {
   state: object;
 }
 
+declare module '@tanstack/table-core' {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    isBorderless?: boolean;
+    title?: string;
+  }
+}
+
 export function ExpandableTable<TData>({
   data,
   columns,
@@ -39,13 +46,13 @@ export function ExpandableTable<TData>({
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id}>
-              {headerGroup?.headers.map((header) => {
+              {headerGroup?.headers?.map((header) => {
                 return (
                   <th
                     key={header.id}
                     colSpan={header.colSpan}
                     style={{ width: `${header.getSize()}px` }}
-                    className="relative group"
+                    className={`relative group ${header.column.columnDef.meta?.isBorderless ? '': "p-2 border-x border-slate-900"}`}
                   >
                     {header.isPlaceholder ? null : (
                       <div>
@@ -74,7 +81,7 @@ export function ExpandableTable<TData>({
                   {/* first row is a normal row */}
                   {row.getVisibleCells().map((cell) => {
                     return (
-                      <td key={cell.id}>
+                      <td key={cell.id} className={`${cell.column.columnDef.meta?.isBorderless ? '': "p-2 border-x border-slate-900"}`}>
                         <div
                           className="line-clamp-1"
                           {...{

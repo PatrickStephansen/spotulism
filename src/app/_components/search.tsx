@@ -17,7 +17,7 @@ import { ExpandableTable } from "./expandable-table";
 import { QueueState } from "../_types/queue";
 import { playerQueue } from "../_state/playback";
 
-interface Props {}
+interface Props { }
 
 const iconHeight = 24;
 const playMedia = (uri: string) => {
@@ -48,7 +48,7 @@ const playlistColumnHelper = createColumnHelper<SearchMatch["playlists"][0]>();
 
 const playTitle = "Play immediately";
 
-export const Search = ({}: Props) => {
+export const Search = ({ }: Props) => {
   const [searchParams, setSearchParams] = useAtom(doSearch);
   const searchResults = useAtomValue(searchMatches);
   const [_queue, setQueue] = useAtom(playerQueue);
@@ -80,7 +80,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "expander",
-        meta: { title: "Expand details" },
+        meta: { title: "Expand details", isBorderless: true },
       }),
       trackColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -95,7 +95,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "play",
-        meta: { title: playTitle },
+        meta: { title: playTitle, isBorderless: true },
       }),
       trackColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -113,7 +113,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "enqueue",
-        meta: { title: "Add to queue" },
+        meta: { title: "Add to queue", isBorderless: true },
       }),
       trackColumnHelper.accessor("name", {
         cell: (info) => info.getValue(),
@@ -141,6 +141,7 @@ export const Search = ({}: Props) => {
             height={info.getValue()?.height ?? 50}
           />
         ),
+        meta: { isBorderless: true }
       }),
       trackColumnHelper.accessor((row) => row.album.name, {
         id: "album",
@@ -198,7 +199,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "expander",
-        meta: { title: "Expand details" },
+        meta: { title: "Expand details", isBorderless: true },
       }),
       albumColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -213,7 +214,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "play",
-        meta: { title: playTitle },
+        meta: { title: playTitle, isBorderless: true },
       }),
       albumColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -231,7 +232,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "enqueue",
-        meta: { title: "Add to queue" },
+        meta: { title: "Add to queue", isBorderless: true },
       }),
       albumColumnHelper.accessor((row) => row.previewImage, {
         id: "albumArt",
@@ -245,6 +246,7 @@ export const Search = ({}: Props) => {
             height={info.getValue()?.height ?? 50}
           />
         ),
+        meta: { isBorderless: true }
       }),
       albumColumnHelper.accessor("name", {
         header: () => <span>Name</span>,
@@ -307,7 +309,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "expander",
-        meta: { title: "Expand details" },
+        meta: { title: "Expand details", isBorderless: true },
       }),
       artistColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -322,7 +324,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "play",
-        meta: { title: playTitle },
+        meta: { title: playTitle, isBorderless: true },
       }),
       artistColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -340,7 +342,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "queue",
-        meta: { title: "Add top 10 tracks to queue" },
+        meta: { title: "Add top 10 tracks to queue", isBorderless: true },
       }),
       artistColumnHelper.accessor((row) => row.previewImage, {
         header: () => null,
@@ -354,6 +356,7 @@ export const Search = ({}: Props) => {
             height={info.getValue()?.height ?? 50}
           />
         ),
+        meta: { isBorderless: true }
       }),
       artistColumnHelper.accessor("name", {
         header: () => <span>Name</span>,
@@ -407,7 +410,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "expander",
-        meta: { title: "Expand details" },
+        meta: { title: "Expand details", isBorderless: true },
       }),
       playlistColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -422,7 +425,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "play",
-        meta: { title: playTitle },
+        meta: { title: playTitle, isBorderless: true },
       }),
       playlistColumnHelper.accessor("uri", {
         cell: ({ getValue }) => (
@@ -437,7 +440,7 @@ export const Search = ({}: Props) => {
         header: () => null,
         size: iconHeight,
         id: "queue",
-        meta: { title: "Add top 10 tracks to queue" },
+        meta: { title: "Add top 10 tracks to queue", isBorderless: true },
       }),
       albumColumnHelper.accessor((row) => row.previewImage, {
         id: "playlistArt",
@@ -451,6 +454,7 @@ export const Search = ({}: Props) => {
             height={info.getValue()?.height ?? 50}
           />
         ),
+        meta: { isBorderless: true }
       }),
       playlistColumnHelper.accessor("name", {
         header: () => <span>Name</span>,
